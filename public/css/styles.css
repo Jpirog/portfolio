@@ -1,0 +1,143 @@
+* {
+  box-sizing: border-box;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+body{
+  height: 100%;
+  background-color: pink;
+  width: 100%;
+}
+#pagenotfound{
+  width: 100%;
+  height: auto;
+  /*padding: 0; */
+}
+#herocontainer{
+  position: relative;
+  margin: 0 auto;
+  overflow:hidden;
+   max-height: 70rem; 
+}
+#homehero{
+  /* width: 50%;
+  height: auto; */
+  margin: -250px 0px -100px 00px;
+  /* display: block; */
+  max-width: 100%;
+  /* max-height: 100%; */
+  height: auto;
+
+  /* height: auto;  */
+  /*padding: 0; */
+/*   width: 100%;
+    max-width:100%;
+    height:auto;
+    position: absolute;
+    bottom: */
+}
+#herotop{
+  position: absolute;
+  top: -1rem;
+  left: 4rem;
+  background-color: transparent;
+  /* padding-left: 10px;
+  padding-right: 10px; */
+  font-size: 2.5rem;
+  color: white;
+  font-style: italic;
+  margin-top: 0;
+  padding-top: 0;
+  width: 100%;
+}
+#herobottom{
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  background-color: transparent;
+  color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-size: 3rem;
+  font-style: italic;
+}
+#nav ul{
+  background-color: red;
+  display: flex;
+  list-style: none;
+}
+#notfoundtext{
+  position: absolute;
+  bottom: 2rem;
+  left: 4rem;
+  background-color: transparent;
+  /* padding-left: 10px;
+  padding-right: 10px; */
+  font-size: 2rem;
+  color: black;
+  font-style: italic;
+  margin-top: 0;
+  padding-top: 0;
+  width: 100%;
+  z-index: 99;
+}
+#projcontainer{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+
+}
+.project{
+  height: 40rem;
+  width: 40%;
+  background-color: lightblue;
+  border: 1px solid black;
+}
+.project img{
+  width: 90%;
+  margin-left: 5%;;
+  height: auto;
+}
+.project img:hover{
+  width: 130%;
+  margin-left: -15%;
+}
+.project img:hover + .projdesc { 
+  display: none; 
+}
+
+.project ul{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  text-decoration: none;
+  margin-left: 5%;
+  width: 90%;
+  margin-right: 5%;
+  list-style: none;
+}
+.project p:first-child{
+  text-align: center;
+  font-weight: bold;
+}
+.projdesc{
+  margin-left: 5%;
+  margin-right: 5%;
+  display: block;
+}
+#video{
+  cursor: pointer;
+  text-decoration: underline;
+}
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity 1000ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open{
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+  opacity: 0;
+}
