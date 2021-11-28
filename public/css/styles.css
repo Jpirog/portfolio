@@ -141,3 +141,43 @@ body{
 .ReactModal__Overlay--before-close{
   opacity: 0;
 }
+footer{
+  background-color: black;
+  width: 100%;
+}
+#contact{
+  background-color: slategray;
+}
+#contact h1{
+  text-align: center;
+  color: white;
+}
+#contacthead{
+  text-align: center;
+  /* padding-top: 1rem; */
+  padding-bottom: 1rem;
+  color: blue;
+}
+#linkstome{
+  display: flex;
+  height: 8rem;
+  margin-top: 2rem;
+  margin-left: 25%;
+  padding-top: 2rem;
+  width: 50%;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+#linkstome a{
+  color: white;
+  align-self: center;
+}
+#copyr{
+  text-align: center;
+  color: whitesmoke;
+  padding-bottom: 3rem;
+}
+.logo{
+  height: 3rem;
+  width: 3rem;
+}

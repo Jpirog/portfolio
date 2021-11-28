@@ -3,6 +3,7 @@ import Contact from './contact';
 import Projects from './projects';
 import About from './about';
 import Nav from './nav';
+import Footer from './footer';
 
 const HomeTop = () => {
   return (
@@ -34,6 +35,7 @@ const Home = () => {
       <About />
       <Projects />
       <Contact />
+      <Footer />
     </div>
   )
 }
