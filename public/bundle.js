@@ -1,6 +1,32 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/PageTitle.js":
+/*!**************************!*\
+  !*** ./src/PageTitle.js ***!
+  \**************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+
+const PageTitle = ({
+  headingText
+}) => {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "pagetitle"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h1", null, headingText));
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PageTitle);
+
+/***/ }),
+
 /***/ "./src/about.js":
 /*!**********************!*\
   !*** ./src/about.js ***!
@@ -13,10 +39,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _PageTitle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageTitle */ "./src/PageTitle.js");
+
 
 
 const About = props => {
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "About me"));
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("section", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageTitle__WEBPACK_IMPORTED_MODULE_1__["default"], {
+    headingText: "About"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    id: "about"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h3", null, "I'm John Pirog and I really do love writing code!"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Over the years, I've developed software in many languages and platforms. From mainframes to Unix to Windows to the web, I've programmed in languages like Perl, Python, SQL Windows, and Microsoft products. I've always kept efficiency, performance, memory considerations in mind when developing. Now I am concentrating on the newer Web components as well as full stack development."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    id: "proficiencies"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "proficiency"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Areas I'm proficient in"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Javascript"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Node.js"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Express"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "JSX"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "React + Redux + Router"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "PostgreSQL"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Sequelize, SQL, databases"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "HTML"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "CSS"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "proficiency"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Areas i'm Learning"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Bootstrap"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "MongoDB"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Python"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "proficiency"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Other areas of expertise"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "ERP - Oracle eBusiness Suite"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "eCommerce - B2B and B2C"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Business relationships"))))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (About);
@@ -75,7 +115,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_hook_form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-hook-form */ "./node_modules/react-hook-form/dist/index.esm.js");
+/* harmony import */ var _PageTitle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageTitle */ "./src/PageTitle.js");
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 
 
 
@@ -94,12 +136,22 @@ const Contact = () => {
 
   const onSubmit = data => setResult(JSON.stringify(data));
 
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("section", {
     id: "contact"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("hr", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h1", null, "Contact"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageTitle__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    headingText: "Contact"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h2", {
     id: "contacthead"
-  }, "Have a question or want to work together?"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", {
+  }, "Have a question or want to work together?"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h3", {
+    id: "contactemail"
+  }, "Send an email (", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", {
+    href: "mailto: john.pirog@gmail.com"
+  }, "john.pirog@gmail.com"), ") or use the form below"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", {
     onSubmit: handleSubmit(onSubmit)
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
+    className: "form-wrapper"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
+    className: "form-row"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
     htmlFor: "name"
   }, "Name:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", _extends({
@@ -110,8 +162,11 @@ const Contact = () => {
   }), {
     placeholder: "Name",
     required: true,
+    size: 10,
     maxLength: 30
-  })), errors.name && "Please enter your name", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
+  })), errors.name && "Please enter your name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
+    className: "form-row"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
     htmlFor: "email"
   }, "Email:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", _extends({}, register("email", {
     required: true,
@@ -120,19 +175,24 @@ const Contact = () => {
     placeholder: "Email",
     type: "email",
     required: true,
+    size: 75,
     maxLength: 75
-  })), errors.email && "Please enter your email address", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
+  })), errors.email && "Please enter your email address"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
+    className: "form-row"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
     htmlFor: "Message"
   }, "Message:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("textarea", _extends({}, register("message", {
     required: true,
     maxLength: 500
   }), {
     placeholder: "Message",
+    required: true,
     cols: 50,
     rows: 5
-  })), errors.message && "Please enter a message", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, result), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
+  })), errors.message && "Please enter a message"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, result), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
+    className: "form-row",
     type: "submit"
-  })));
+  }))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Contact);
@@ -174,6 +234,12 @@ const Footer = () => {
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
     className: "logo",
     src: "/instagram-logo.svg"
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", {
+    href: "mailto:john.pirog@gmail.com?subject=Saw your website...",
+    target: "_blank"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    className: "logo",
+    src: "/email-logo.jpeg"
   }))), "\\     ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     id: "copyr"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", {
@@ -210,27 +276,31 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const HomeTop = () => {
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("section", {
     id: "herocontainer"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
     id: "homehero",
     src: "/liveforthecode.jpeg"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     id: "herotop"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Hello, I'm John Pirog"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "\xA0\xA0\xA0Full Stack Developer"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "\xA0\xA0\xA0\xA0\xA0\xA0And I love to write code!")));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Hello, I'm John Pirog"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "\xA0\xA0\xA0Full Stack Developer"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "\xA0\xA0\xA0\xA0\xA0\xA0And I love to write code...")));
 };
 
 const HomeBottom = () => {
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "container"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Some text"));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", {
+    style: {
+      "display": "none"
+    }
+  }, "place holder for home - bottom if needed"));
 };
 
 const Home = () => {
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(HomeTop, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(HomeBottom, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_nav__WEBPACK_IMPORTED_MODULE_4__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_about__WEBPACK_IMPORTED_MODULE_3__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_projects__WEBPACK_IMPORTED_MODULE_2__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_contact__WEBPACK_IMPORTED_MODULE_1__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_footer__WEBPACK_IMPORTED_MODULE_5__["default"], null));
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(HomeTop, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_nav__WEBPACK_IMPORTED_MODULE_4__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_about__WEBPACK_IMPORTED_MODULE_3__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_projects__WEBPACK_IMPORTED_MODULE_2__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_contact__WEBPACK_IMPORTED_MODULE_1__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_footer__WEBPACK_IMPORTED_MODULE_5__["default"], null));
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Home);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Home); // <HomeBottom />
 
 /***/ }),
 
@@ -249,9 +319,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const Nav = props => {
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("section", {
     id: "nav"
-  }, "Nav:", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Home"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "About")));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
+    id: "navitems"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Home"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "About"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Projects"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Contact")));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Nav);
@@ -305,6 +377,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-modal */ "./node_modules/react-modal/lib/index.js");
 /* harmony import */ var react_modal__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_modal__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _PageTitle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageTitle */ "./src/PageTitle.js");
+
 
 
 
@@ -332,7 +406,7 @@ const Project = ({
     src: project.image
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", {
     className: "projdesc"
-  }, project.description), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("hr", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, project.technologies.map((tech, i) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, tech, i !== project.technologies.length - 1 ? ' / ' : ''))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("hr", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
+  }, project.description), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("hr", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, project.technologies.map((tech, i) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, tech))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("hr", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
     id: "video",
     onClick: handleOpenModal
   }, "Video"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement((react_modal__WEBPACK_IMPORTED_MODULE_1___default()), {
@@ -392,30 +466,32 @@ const Project = ({
 const projectData = [{
   name: "Grace Coffee",
   image: "gracecoffee1.jpg",
-  description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My area of focus was the database, numerous APIs, Redux thunks, and some of the front-end components.",
+  description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My areas of focus were the database, numerous APIs, Redux thunks, and some of the front-end components.",
   technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
   video: "https://www.youtube.com/embed/2WUD5zVybYY?&autoplay=1",
   github: "https://github.com/Team-2-Grace-Shopper/team-2-grace-shopper",
   site: "https://fsa-team2-coffee.herokuapp.com/home"
 }, {
-  name: "Grace Coffee",
-  image: "gracecoffee1.jpg",
-  description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My area of focus was the database, numerous APIs, Redux thunks, and some of the front-end components.",
+  name: "CoPilot",
+  image: "copilot.jpg",
+  description: "Our senior phase capstone project was a site where a group of people can co-plan a trip. This will ease the planning when a group of friends or a families are going somewhere together. While I again focused on the database, numerous APIs, and Redux thunks, i also wrote some of the front-end components.",
   technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
-  video: "https://www.youtube.com/embed/2WUD5zVybYY?&autoplay=1",
-  github: "https://github.com/Team-2-Grace-Shopper/team-2-grace-shopper",
-  site: "https://fsa-team2-coffee.herokuapp.com/home"
+  video: "https://www.youtube.com/embed/qcl9iqdCT8A",
+  github: "https://github.com/Jpirog/CoPilot",
+  site: "https://copilot-2014.herokuapp.com/aboutus"
 }];
 
 const Projects = props => {
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("section", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageTitle__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    headingText: "Projects"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     id: "projcontainer"
   }, projectData.map(curr => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(Project, {
     project: curr
-  })));
+  }))));
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Projects);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Projects); // { project.technologies.map((tech,i) => <li>{tech}{i !== project.technologies.length-1 ? '/' : ''}</li>) }
 
 /***/ }),
 

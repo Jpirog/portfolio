@@ -14,6 +14,9 @@ const Footer = () => {
           <a href="https://www.instagram.com/johnpirog262/" target="_blank">
             <img className="logo" src="/instagram-logo.svg" />
           </a>
+          <a href="mailto:john.pirog@gmail.com?subject=Saw your website..." target="_blank">
+            <img className="logo" src="/email-logo.jpeg" />
+          </a>
       </div>
 \     <div id="copyr">
         <span className="highlight">&copy;2021</span> - John Pirog - all rights reserved

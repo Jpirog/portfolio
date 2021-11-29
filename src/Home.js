@@ -7,21 +7,21 @@ import Footer from './footer';
 
 const HomeTop = () => {
   return (
-    <div id="herocontainer">
+    <section id="herocontainer">
       <img id="homehero" src="/liveforthecode.jpeg"/>
       <div id="herotop">
         <p>Hello, I'm John Pirog</p>
         <p>&nbsp;&nbsp;&nbsp;Full Stack Developer</p>
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And I love to write code!</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;And I love to write code...</p>
       </div>
-    </div>
+    </section>
   )
 }
 
 const HomeBottom = () => {
   return (
     <div className="container">
-    <p>Some text</p>
+    <p style={{"display":"none"}}>place holder for home - bottom if needed</p>
     </div>
   )
 }
@@ -30,7 +30,6 @@ const Home = () => {
   return (
     <div>
       <HomeTop />
-      <HomeBottom />
       <Nav />
       <About />
       <Projects />
@@ -41,3 +40,4 @@ const Home = () => {
 }
 
 export default Home;
+// <HomeBottom />

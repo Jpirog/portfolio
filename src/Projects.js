@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ReactModal from 'react-modal';
+import PageTitle from './PageTitle';
 
 const Project = ( {project} ) => {
   const [showModal, setShowModal] = useState(false);
@@ -24,7 +25,7 @@ const Project = ( {project} ) => {
       <p className="projdesc">{project.description}</p>
       <hr />
       <ul>
-        { project.technologies.map((tech,i) => <li>{tech}{i !== project.technologies.length-1 ? ' / ' : ''}</li>) }
+        { project.technologies.map((tech,i) => <li>{ tech }</li>) }
       </ul>
       <hr />
       <ul>
@@ -81,30 +82,34 @@ const Project = ( {project} ) => {
 const projectData = [
   { name: "Grace Coffee",
     image: "gracecoffee1.jpg",
-    description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My area of focus was the database, numerous APIs, Redux thunks, and some of the front-end components.",
+    description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My areas of focus were the database, numerous APIs, Redux thunks, and some of the front-end components.",
     technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
     video: "https://www.youtube.com/embed/2WUD5zVybYY?&autoplay=1",
     github: "https://github.com/Team-2-Grace-Shopper/team-2-grace-shopper",
     site: "https://fsa-team2-coffee.herokuapp.com/home",
   },
-  { name: "Grace Coffee",
-    image: "gracecoffee1.jpg",
-    description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My area of focus was the database, numerous APIs, Redux thunks, and some of the front-end components.",
+  { name: "CoPilot",
+    image: "copilot.jpg",
+    description: "Our senior phase capstone project was a site where a group of people can co-plan a trip. This will ease the planning when a group of friends or a families are going somewhere together. While I again focused on the database, numerous APIs, and Redux thunks, i also wrote some of the front-end components.",
     technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
-    video: "https://www.youtube.com/embed/2WUD5zVybYY?&autoplay=1",
-    github: "https://github.com/Team-2-Grace-Shopper/team-2-grace-shopper",
-    site: "https://fsa-team2-coffee.herokuapp.com/home",
+    video: "https://www.youtube.com/embed/qcl9iqdCT8A",
+    github: "https://github.com/Jpirog/CoPilot",
+    site: "https://copilot-2014.herokuapp.com/aboutus",
   },
 ];
 
 const Projects = props => {
   return (
-  <div id="projcontainer">
-    { projectData.map(curr => <Project project={ curr } />)
-
-    }
-  </div>
+    <section>
+      <PageTitle headingText="Projects" />
+      <div id="projcontainer">
+        { projectData.map(curr => <Project project={ curr } />)
+        }
+      </div>
+    </section>
   )
 }
 
 export default Projects;
+
+// { project.technologies.map((tech,i) => <li>{tech}{i !== project.technologies.length-1 ? '/' : ''}</li>) }
