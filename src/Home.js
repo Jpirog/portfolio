@@ -1,9 +1,9 @@
 import React from 'react';
-import Contact from './contact';
-import Projects from './projects';
-import About from './about';
-import Nav from './nav';
-import Footer from './footer';
+import Contact from './Contact';
+import Projects from './Projects';
+import About from './About';
+import Nav from './Nav';
+import Footer from './Footer';
 
 const HomeTop = () => {
   return (
