@@ -3,9 +3,9 @@ import PageTitle from './PageTitle';
 
 const About = props => {
   return (
-    <section>
+    <section id="about">
       <PageTitle headingText="About" />
-      <div id="about">
+      <div id="aboutxxx">
         <h3>I'm John Pirog and I really do love writing code!</h3>
         <p>Over the years, I've developed software in many languages and platforms. From mainframes to Unix to Windows to the web, I've programmed in languages like Perl, Python, SQL Windows, and Microsoft products. I've always kept efficiency, performance, memory considerations in mind when developing. Now I am concentrating on the newer Web components as well as full stack development.</p>
         <div id="proficiencies">

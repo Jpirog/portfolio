@@ -100,7 +100,7 @@ const projectData = [
 
 const Projects = props => {
   return (
-    <section>
+    <section id="projects">
       <PageTitle headingText="Projects" />
       <div id="projcontainer">
         { projectData.map(curr => <Project project={ curr } />)

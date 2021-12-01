@@ -7,7 +7,9 @@
 body{
   /* height: 100%; */
   background-color: pink;
-  width: 99%;
+  /* width: 99%; */
+  margin:0;
+  padding:0;
 }
 #pagenotfound{
   width: 100%;
@@ -23,9 +25,10 @@ body{
 #homehero{
   /* width: 50%;
   height: auto; */
-  margin: -250px 0px -100px 00px;
+  /* margin: -250px 0px -100px 00px; */
   /* display: block; */
-  max-width: 100%;
+  width: 100%;
+  /* max-width: 100%; */
   /* max-height: 100%; */
   height: auto;
 
@@ -44,7 +47,8 @@ body{
   background-color: transparent;
   /* padding-left: 10px;
   padding-right: 10px; */
-  font-size: 2.5rem;
+  /* font-size: 2.5rem; */
+  font-size: 3.5vw;
   color: white;
   font-style: italic;
   margin-top: 0;
