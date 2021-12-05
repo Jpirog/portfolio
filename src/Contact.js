@@ -19,7 +19,7 @@ const Contact = () => {
 
         <li className="form-row">
           <label htmlFor="name">Name:</label>
-          <input autoFocus {...register("name", { required: true, maxLength: 30 })} placeholder="Name" required size={10} maxLength={30}/>
+          <input {...register("name", { required: true, maxLength: 30 })} placeholder="Name" required size={10} maxLength={30}/>
           {errors.name && "Please enter your name"}
         </li>
 

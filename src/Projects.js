@@ -25,7 +25,7 @@ const Project = ( {project} ) => {
       <p className="projdesc">{project.description}</p>
       <hr />
       <ul>
-        { project.technologies.map((tech,i) => <li>{ tech }</li>) }
+        { project.technologies.map((tech,i) => <li key={i}>{ tech }</li>) }
       </ul>
       <hr />
       <ul>
@@ -87,6 +87,7 @@ const projectData = [
     video: "https://www.youtube.com/embed/2WUD5zVybYY?&autoplay=1",
     github: "https://github.com/Team-2-Grace-Shopper/team-2-grace-shopper",
     site: "https://fsa-team2-coffee.herokuapp.com/home",
+    id: 1,
   },
   { name: "CoPilot",
     image: "copilot.jpg",
@@ -95,6 +96,7 @@ const projectData = [
     video: "https://www.youtube.com/embed/qcl9iqdCT8A",
     github: "https://github.com/Jpirog/CoPilot",
     site: "https://copilot-2014.herokuapp.com/aboutus",
+    id: 2,
   },
 ];
 
@@ -103,7 +105,7 @@ const Projects = props => {
     <section id="projects">
       <PageTitle headingText="Projects" />
       <div id="projcontainer">
-        { projectData.map(curr => <Project project={ curr } />)
+        { projectData.map(curr => <Project project={ curr } key={curr.id}/>)
         }
       </div>
     </section>

@@ -14,7 +14,6 @@ const NotFound = () => {
 function MyRoutes() {
     return (
       <Routes>
-        <Route path="contact" element={<Contact /> } />
         <Route path="/" element={<Home /> } />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -22,3 +21,5 @@ function MyRoutes() {
 }
 
 export default MyRoutes;
+
+// <Route path="contact" element={<Contact /> } />

@@ -15,7 +15,7 @@ const Footer = () => {
             <img className="logo" src="/instagram-logo.svg" />
           </a>
           <a href="mailto:john.pirog@gmail.com?subject=Saw your website..." target="_blank">
-            <img className="logo" src="/email-logo.jpeg" />
+            <img className="logo" src="/email-logo.svg" />
           </a>
       </div>
 \     <div id="copyr">
