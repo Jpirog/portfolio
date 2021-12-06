@@ -72,7 +72,7 @@ const Project = ( {project} ) => {
           </div>
         </ReactModal>
         <li><a href={project.site} target="_blank">Site</a></li>
-        <li><a href={project.github} target="_blank">GitHub</a></li>
+        <li><a href={project.github} target="_blank" >GitHub</a></li>
       </ul>
     </div>
   )

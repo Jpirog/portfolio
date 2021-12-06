@@ -8,7 +8,7 @@ import Footer from './Footer';
 const HomeTop = () => {
   return (
     <section id="herocontainer">
-      <img id="homehero" src="/homeimg1.jpeg"/>
+      <img id="homehero" src="/homeimg1.jpeg" alt="Background for John Pirog - full stack developer"/>
       <div id="herotop">
         <p>Hello, I'm John Pirog</p>
         <p>&nbsp;&nbsp;&nbsp;Full Stack web developer<br />

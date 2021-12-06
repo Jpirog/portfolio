@@ -1,15 +1,16 @@
 
-const path = require('path')
-const express = require('express')
-const morgan = require('morgan')
-const app = express()
-module.exports = app
+const path = require('path');
+const express = require('express');
+const morgan = require('morgan');
+const app = express();
+const fs = require('fs');
+module.exports = app;
 
 // logging middleware
 app.use(morgan('short'))
 
 // body parsing middleware
-//app.use(express.json())
+app.use(express.json())
 
 //app.get('/', (req, res)=> res.sendFile(path.join(__dirname, 'public/index.html')));
 
@@ -17,6 +18,13 @@ app.use(morgan('short'))
 app.use('/',express.static(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, 'public')))
 //app.use(express.static(path.join(__dirname, '../dist')))
+app.post('/contactme', (req, res, next) => {
+  const {name, email, msg } = req.body;
+  const stream = fs.createWriteStream("contactme.txt", {flags:'a'});
+  stream.write(`${new Date().toISOString()} - contact me form - from: ${name} / email: ${email} / message: ${msg}` + "\n");
+  stream.end();
+  res.sendStatus(200);
+})
 
 app.use('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));

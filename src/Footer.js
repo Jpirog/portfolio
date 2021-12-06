@@ -5,16 +5,16 @@ const Footer = () => {
   return (
     <footer>
       <div id="linkstome">
-          <a href="https://www.linkedin.com/in/johnpirog" target="_blank">
+          <a href="https://www.linkedin.com/in/johnpirog" target="_blank" >
             <img className="logo" src="/linkedin-logo.png" />
           </a>
-          <a href="https://github.com/jpirog/" target="_blank">
+          <a href="https://github.com/jpirog/" target="_blank" >
             <img className="logo" src="/github-logo.png" />
           </a>
-          <a href="https://www.instagram.com/johnpirog262/" target="_blank">
+          <a href="https://www.instagram.com/johnpirog262/" target="_blank" >
             <img className="logo" src="/instagram-logo.svg" />
           </a>
-          <a href="mailto:john.pirog@gmail.com?subject=Saw your website..." target="_blank">
+          <a href="mailto:john.pirog@gmail.com?subject=Saw your website..." target="_blank" >
             <img className="logo" src="/email-logo.svg" />
           </a>
       </div>

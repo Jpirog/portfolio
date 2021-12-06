@@ -1,6 +1,2151 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./node_modules/axios/index.js":
+/*!*************************************!*\
+  !*** ./node_modules/axios/index.js ***!
+  \*************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = __webpack_require__(/*! ./lib/axios */ "./node_modules/axios/lib/axios.js");
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/adapters/xhr.js":
+/*!************************************************!*\
+  !*** ./node_modules/axios/lib/adapters/xhr.js ***!
+  \************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var settle = __webpack_require__(/*! ./../core/settle */ "./node_modules/axios/lib/core/settle.js");
+var cookies = __webpack_require__(/*! ./../helpers/cookies */ "./node_modules/axios/lib/helpers/cookies.js");
+var buildURL = __webpack_require__(/*! ./../helpers/buildURL */ "./node_modules/axios/lib/helpers/buildURL.js");
+var buildFullPath = __webpack_require__(/*! ../core/buildFullPath */ "./node_modules/axios/lib/core/buildFullPath.js");
+var parseHeaders = __webpack_require__(/*! ./../helpers/parseHeaders */ "./node_modules/axios/lib/helpers/parseHeaders.js");
+var isURLSameOrigin = __webpack_require__(/*! ./../helpers/isURLSameOrigin */ "./node_modules/axios/lib/helpers/isURLSameOrigin.js");
+var createError = __webpack_require__(/*! ../core/createError */ "./node_modules/axios/lib/core/createError.js");
+var defaults = __webpack_require__(/*! ../defaults */ "./node_modules/axios/lib/defaults.js");
+var Cancel = __webpack_require__(/*! ../cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+    var responseType = config.responseType;
+    var onCanceled;
+    function done() {
+      if (config.cancelToken) {
+        config.cancelToken.unsubscribe(onCanceled);
+      }
+
+      if (config.signal) {
+        config.signal.removeEventListener('abort', onCanceled);
+      }
+    }
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    var fullPath = buildFullPath(config.baseURL, config.url);
+    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    function onloadend() {
+      if (!request) {
+        return;
+      }
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !responseType || responseType === 'text' ||  responseType === 'json' ?
+        request.responseText : request.response;
+      var response = {
+        data: responseData,
+        status: request.status,
+        statusText: request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(function _resolve(value) {
+        resolve(value);
+        done();
+      }, function _reject(err) {
+        reject(err);
+        done();
+      }, response);
+
+      // Clean up request
+      request = null;
+    }
+
+    if ('onloadend' in request) {
+      // Use onloadend if available
+      request.onloadend = onloadend;
+    } else {
+      // Listen for ready state to emulate onloadend
+      request.onreadystatechange = function handleLoad() {
+        if (!request || request.readyState !== 4) {
+          return;
+        }
+
+        // The request errored out and we didn't get a response, this will be
+        // handled by onerror instead
+        // With one exception: request that using file: protocol, most browsers
+        // will return status as 0 even though it's a successful request
+        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+          return;
+        }
+        // readystate handler is calling before onerror or ontimeout handlers,
+        // so we should call onloadend on the next 'tick'
+        setTimeout(onloadend);
+      };
+    }
+
+    // Handle browser request cancellation (as opposed to a manual cancellation)
+    request.onabort = function handleAbort() {
+      if (!request) {
+        return;
+      }
+
+      reject(createError('Request aborted', config, 'ECONNABORTED', request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      var timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
+      var transitional = config.transitional || defaults.transitional;
+      if (config.timeoutErrorMessage) {
+        timeoutErrorMessage = config.timeoutErrorMessage;
+      }
+      reject(createError(
+        timeoutErrorMessage,
+        config,
+        transitional.clarifyTimeoutError ? 'ETIMEDOUT' : 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
+        cookies.read(config.xsrfCookieName) :
+        undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (!utils.isUndefined(config.withCredentials)) {
+      request.withCredentials = !!config.withCredentials;
+    }
+
+    // Add responseType to request if needed
+    if (responseType && responseType !== 'json') {
+      request.responseType = config.responseType;
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken || config.signal) {
+      // Handle cancellation
+      // eslint-disable-next-line func-names
+      onCanceled = function(cancel) {
+        if (!request) {
+          return;
+        }
+        reject(!cancel || (cancel && cancel.type) ? new Cancel('canceled') : cancel);
+        request.abort();
+        request = null;
+      };
+
+      config.cancelToken && config.cancelToken.subscribe(onCanceled);
+      if (config.signal) {
+        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
+      }
+    }
+
+    if (!requestData) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/axios.js":
+/*!*****************************************!*\
+  !*** ./node_modules/axios/lib/axios.js ***!
+  \*****************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/axios/lib/utils.js");
+var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
+var Axios = __webpack_require__(/*! ./core/Axios */ "./node_modules/axios/lib/core/Axios.js");
+var mergeConfig = __webpack_require__(/*! ./core/mergeConfig */ "./node_modules/axios/lib/core/mergeConfig.js");
+var defaults = __webpack_require__(/*! ./defaults */ "./node_modules/axios/lib/defaults.js");
+
+/**
+ * Create an instance of Axios
+ *
+ * @param {Object} defaultConfig The default config for the instance
+ * @return {Axios} A new instance of Axios
+ */
+function createInstance(defaultConfig) {
+  var context = new Axios(defaultConfig);
+  var instance = bind(Axios.prototype.request, context);
+
+  // Copy axios.prototype to instance
+  utils.extend(instance, Axios.prototype, context);
+
+  // Copy context to instance
+  utils.extend(instance, context);
+
+  // Factory for creating new instances
+  instance.create = function create(instanceConfig) {
+    return createInstance(mergeConfig(defaultConfig, instanceConfig));
+  };
+
+  return instance;
+}
+
+// Create the default instance to be exported
+var axios = createInstance(defaults);
+
+// Expose Axios class to allow class inheritance
+axios.Axios = Axios;
+
+// Expose Cancel & CancelToken
+axios.Cancel = __webpack_require__(/*! ./cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+axios.CancelToken = __webpack_require__(/*! ./cancel/CancelToken */ "./node_modules/axios/lib/cancel/CancelToken.js");
+axios.isCancel = __webpack_require__(/*! ./cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
+axios.VERSION = (__webpack_require__(/*! ./env/data */ "./node_modules/axios/lib/env/data.js").version);
+
+// Expose all/spread
+axios.all = function all(promises) {
+  return Promise.all(promises);
+};
+axios.spread = __webpack_require__(/*! ./helpers/spread */ "./node_modules/axios/lib/helpers/spread.js");
+
+// Expose isAxiosError
+axios.isAxiosError = __webpack_require__(/*! ./helpers/isAxiosError */ "./node_modules/axios/lib/helpers/isAxiosError.js");
+
+module.exports = axios;
+
+// Allow use of default import syntax in TypeScript
+module.exports["default"] = axios;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/Cancel.js":
+/*!*************************************************!*\
+  !*** ./node_modules/axios/lib/cancel/Cancel.js ***!
+  \*************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/CancelToken.js":
+/*!******************************************************!*\
+  !*** ./node_modules/axios/lib/cancel/CancelToken.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var Cancel = __webpack_require__(/*! ./Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+
+/**
+ * A `CancelToken` is an object that can be used to request cancellation of an operation.
+ *
+ * @class
+ * @param {Function} executor The executor function.
+ */
+function CancelToken(executor) {
+  if (typeof executor !== 'function') {
+    throw new TypeError('executor must be a function.');
+  }
+
+  var resolvePromise;
+
+  this.promise = new Promise(function promiseExecutor(resolve) {
+    resolvePromise = resolve;
+  });
+
+  var token = this;
+
+  // eslint-disable-next-line func-names
+  this.promise.then(function(cancel) {
+    if (!token._listeners) return;
+
+    var i;
+    var l = token._listeners.length;
+
+    for (i = 0; i < l; i++) {
+      token._listeners[i](cancel);
+    }
+    token._listeners = null;
+  });
+
+  // eslint-disable-next-line func-names
+  this.promise.then = function(onfulfilled) {
+    var _resolve;
+    // eslint-disable-next-line func-names
+    var promise = new Promise(function(resolve) {
+      token.subscribe(resolve);
+      _resolve = resolve;
+    }).then(onfulfilled);
+
+    promise.cancel = function reject() {
+      token.unsubscribe(_resolve);
+    };
+
+    return promise;
+  };
+
+  executor(function cancel(message) {
+    if (token.reason) {
+      // Cancellation has already been requested
+      return;
+    }
+
+    token.reason = new Cancel(message);
+    resolvePromise(token.reason);
+  });
+}
+
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
+CancelToken.prototype.throwIfRequested = function throwIfRequested() {
+  if (this.reason) {
+    throw this.reason;
+  }
+};
+
+/**
+ * Subscribe to the cancel signal
+ */
+
+CancelToken.prototype.subscribe = function subscribe(listener) {
+  if (this.reason) {
+    listener(this.reason);
+    return;
+  }
+
+  if (this._listeners) {
+    this._listeners.push(listener);
+  } else {
+    this._listeners = [listener];
+  }
+};
+
+/**
+ * Unsubscribe from the cancel signal
+ */
+
+CancelToken.prototype.unsubscribe = function unsubscribe(listener) {
+  if (!this._listeners) {
+    return;
+  }
+  var index = this._listeners.indexOf(listener);
+  if (index !== -1) {
+    this._listeners.splice(index, 1);
+  }
+};
+
+/**
+ * Returns an object that contains a new `CancelToken` and a function that, when called,
+ * cancels the `CancelToken`.
+ */
+CancelToken.source = function source() {
+  var cancel;
+  var token = new CancelToken(function executor(c) {
+    cancel = c;
+  });
+  return {
+    token: token,
+    cancel: cancel
+  };
+};
+
+module.exports = CancelToken;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/isCancel.js":
+/*!***************************************************!*\
+  !*** ./node_modules/axios/lib/cancel/isCancel.js ***!
+  \***************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/Axios.js":
+/*!**********************************************!*\
+  !*** ./node_modules/axios/lib/core/Axios.js ***!
+  \**********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var buildURL = __webpack_require__(/*! ../helpers/buildURL */ "./node_modules/axios/lib/helpers/buildURL.js");
+var InterceptorManager = __webpack_require__(/*! ./InterceptorManager */ "./node_modules/axios/lib/core/InterceptorManager.js");
+var dispatchRequest = __webpack_require__(/*! ./dispatchRequest */ "./node_modules/axios/lib/core/dispatchRequest.js");
+var mergeConfig = __webpack_require__(/*! ./mergeConfig */ "./node_modules/axios/lib/core/mergeConfig.js");
+var validator = __webpack_require__(/*! ../helpers/validator */ "./node_modules/axios/lib/helpers/validator.js");
+
+var validators = validator.validators;
+/**
+ * Create a new instance of Axios
+ *
+ * @param {Object} instanceConfig The default config for the instance
+ */
+function Axios(instanceConfig) {
+  this.defaults = instanceConfig;
+  this.interceptors = {
+    request: new InterceptorManager(),
+    response: new InterceptorManager()
+  };
+}
+
+/**
+ * Dispatch a request
+ *
+ * @param {Object} config The config specific for this request (merged with this.defaults)
+ */
+Axios.prototype.request = function request(config) {
+  /*eslint no-param-reassign:0*/
+  // Allow for axios('example/url'[, config]) a la fetch API
+  if (typeof config === 'string') {
+    config = arguments[1] || {};
+    config.url = arguments[0];
+  } else {
+    config = config || {};
+  }
+
+  config = mergeConfig(this.defaults, config);
+
+  // Set config.method
+  if (config.method) {
+    config.method = config.method.toLowerCase();
+  } else if (this.defaults.method) {
+    config.method = this.defaults.method.toLowerCase();
+  } else {
+    config.method = 'get';
+  }
+
+  var transitional = config.transitional;
+
+  if (transitional !== undefined) {
+    validator.assertOptions(transitional, {
+      silentJSONParsing: validators.transitional(validators.boolean),
+      forcedJSONParsing: validators.transitional(validators.boolean),
+      clarifyTimeoutError: validators.transitional(validators.boolean)
+    }, false);
+  }
+
+  // filter out skipped interceptors
+  var requestInterceptorChain = [];
+  var synchronousRequestInterceptors = true;
+  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+    if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
+      return;
+    }
+
+    synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
+
+    requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  var responseInterceptorChain = [];
+  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+    responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  var promise;
+
+  if (!synchronousRequestInterceptors) {
+    var chain = [dispatchRequest, undefined];
+
+    Array.prototype.unshift.apply(chain, requestInterceptorChain);
+    chain = chain.concat(responseInterceptorChain);
+
+    promise = Promise.resolve(config);
+    while (chain.length) {
+      promise = promise.then(chain.shift(), chain.shift());
+    }
+
+    return promise;
+  }
+
+
+  var newConfig = config;
+  while (requestInterceptorChain.length) {
+    var onFulfilled = requestInterceptorChain.shift();
+    var onRejected = requestInterceptorChain.shift();
+    try {
+      newConfig = onFulfilled(newConfig);
+    } catch (error) {
+      onRejected(error);
+      break;
+    }
+  }
+
+  try {
+    promise = dispatchRequest(newConfig);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+
+  while (responseInterceptorChain.length) {
+    promise = promise.then(responseInterceptorChain.shift(), responseInterceptorChain.shift());
+  }
+
+  return promise;
+};
+
+Axios.prototype.getUri = function getUri(config) {
+  config = mergeConfig(this.defaults, config);
+  return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
+};
+
+// Provide aliases for supported request methods
+utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, config) {
+    return this.request(mergeConfig(config || {}, {
+      method: method,
+      url: url,
+      data: (config || {}).data
+    }));
+  };
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, data, config) {
+    return this.request(mergeConfig(config || {}, {
+      method: method,
+      url: url,
+      data: data
+    }));
+  };
+});
+
+module.exports = Axios;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/InterceptorManager.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/axios/lib/core/InterceptorManager.js ***!
+  \***********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+function InterceptorManager() {
+  this.handlers = [];
+}
+
+/**
+ * Add a new interceptor to the stack
+ *
+ * @param {Function} fulfilled The function to handle `then` for a `Promise`
+ * @param {Function} rejected The function to handle `reject` for a `Promise`
+ *
+ * @return {Number} An ID used to remove interceptor later
+ */
+InterceptorManager.prototype.use = function use(fulfilled, rejected, options) {
+  this.handlers.push({
+    fulfilled: fulfilled,
+    rejected: rejected,
+    synchronous: options ? options.synchronous : false,
+    runWhen: options ? options.runWhen : null
+  });
+  return this.handlers.length - 1;
+};
+
+/**
+ * Remove an interceptor from the stack
+ *
+ * @param {Number} id The ID that was returned by `use`
+ */
+InterceptorManager.prototype.eject = function eject(id) {
+  if (this.handlers[id]) {
+    this.handlers[id] = null;
+  }
+};
+
+/**
+ * Iterate over all the registered interceptors
+ *
+ * This method is particularly useful for skipping over any
+ * interceptors that may have become `null` calling `eject`.
+ *
+ * @param {Function} fn The function to call for each interceptor
+ */
+InterceptorManager.prototype.forEach = function forEach(fn) {
+  utils.forEach(this.handlers, function forEachHandler(h) {
+    if (h !== null) {
+      fn(h);
+    }
+  });
+};
+
+module.exports = InterceptorManager;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/buildFullPath.js":
+/*!******************************************************!*\
+  !*** ./node_modules/axios/lib/core/buildFullPath.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var isAbsoluteURL = __webpack_require__(/*! ../helpers/isAbsoluteURL */ "./node_modules/axios/lib/helpers/isAbsoluteURL.js");
+var combineURLs = __webpack_require__(/*! ../helpers/combineURLs */ "./node_modules/axios/lib/helpers/combineURLs.js");
+
+/**
+ * Creates a new URL by combining the baseURL with the requestedURL,
+ * only when the requestedURL is not already an absolute URL.
+ * If the requestURL is absolute, this function returns the requestedURL untouched.
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} requestedURL Absolute or relative URL to combine
+ * @returns {string} The combined full path
+ */
+module.exports = function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL(requestedURL)) {
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/createError.js":
+/*!****************************************************!*\
+  !*** ./node_modules/axios/lib/core/createError.js ***!
+  \****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(/*! ./enhanceError */ "./node_modules/axios/lib/core/enhanceError.js");
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/dispatchRequest.js":
+/*!********************************************************!*\
+  !*** ./node_modules/axios/lib/core/dispatchRequest.js ***!
+  \********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var transformData = __webpack_require__(/*! ./transformData */ "./node_modules/axios/lib/core/transformData.js");
+var isCancel = __webpack_require__(/*! ../cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
+var defaults = __webpack_require__(/*! ../defaults */ "./node_modules/axios/lib/defaults.js");
+var Cancel = __webpack_require__(/*! ../cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
+
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
+function throwIfCancellationRequested(config) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested();
+  }
+
+  if (config.signal && config.signal.aborted) {
+    throw new Cancel('canceled');
+  }
+}
+
+/**
+ * Dispatch a request to the server using the configured adapter.
+ *
+ * @param {object} config The config that is to be used for the request
+ * @returns {Promise} The Promise to be fulfilled
+ */
+module.exports = function dispatchRequest(config) {
+  throwIfCancellationRequested(config);
+
+  // Ensure headers exist
+  config.headers = config.headers || {};
+
+  // Transform request data
+  config.data = transformData.call(
+    config,
+    config.data,
+    config.headers,
+    config.transformRequest
+  );
+
+  // Flatten headers
+  config.headers = utils.merge(
+    config.headers.common || {},
+    config.headers[config.method] || {},
+    config.headers
+  );
+
+  utils.forEach(
+    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
+    function cleanHeaderConfig(method) {
+      delete config.headers[method];
+    }
+  );
+
+  var adapter = config.adapter || defaults.adapter;
+
+  return adapter(config).then(function onAdapterResolution(response) {
+    throwIfCancellationRequested(config);
+
+    // Transform response data
+    response.data = transformData.call(
+      config,
+      response.data,
+      response.headers,
+      config.transformResponse
+    );
+
+    return response;
+  }, function onAdapterRejection(reason) {
+    if (!isCancel(reason)) {
+      throwIfCancellationRequested(config);
+
+      // Transform response data
+      if (reason && reason.response) {
+        reason.response.data = transformData.call(
+          config,
+          reason.response.data,
+          reason.response.headers,
+          config.transformResponse
+        );
+      }
+    }
+
+    return Promise.reject(reason);
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/enhanceError.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/axios/lib/core/enhanceError.js ***!
+  \*****************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Update an Error with the specified config, error code, and response.
+ *
+ * @param {Error} error The error to update.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The error.
+ */
+module.exports = function enhanceError(error, config, code, request, response) {
+  error.config = config;
+  if (code) {
+    error.code = code;
+  }
+
+  error.request = request;
+  error.response = response;
+  error.isAxiosError = true;
+
+  error.toJSON = function toJSON() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: this.config,
+      code: this.code,
+      status: this.response && this.response.status ? this.response.status : null
+    };
+  };
+  return error;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/mergeConfig.js":
+/*!****************************************************!*\
+  !*** ./node_modules/axios/lib/core/mergeConfig.js ***!
+  \****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.js");
+
+/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ * @returns {Object} New object resulting from merging config2 to config1
+ */
+module.exports = function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config2 = config2 || {};
+  var config = {};
+
+  function getMergedValue(target, source) {
+    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
+      return utils.merge(target, source);
+    } else if (utils.isPlainObject(source)) {
+      return utils.merge({}, source);
+    } else if (utils.isArray(source)) {
+      return source.slice();
+    }
+    return source;
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(config1[prop], config2[prop]);
+    } else if (!utils.isUndefined(config1[prop])) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(undefined, config2[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(undefined, config2[prop]);
+    } else if (!utils.isUndefined(config1[prop])) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(prop) {
+    if (prop in config2) {
+      return getMergedValue(config1[prop], config2[prop]);
+    } else if (prop in config1) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  var mergeMap = {
+    'url': valueFromConfig2,
+    'method': valueFromConfig2,
+    'data': valueFromConfig2,
+    'baseURL': defaultToConfig2,
+    'transformRequest': defaultToConfig2,
+    'transformResponse': defaultToConfig2,
+    'paramsSerializer': defaultToConfig2,
+    'timeout': defaultToConfig2,
+    'timeoutMessage': defaultToConfig2,
+    'withCredentials': defaultToConfig2,
+    'adapter': defaultToConfig2,
+    'responseType': defaultToConfig2,
+    'xsrfCookieName': defaultToConfig2,
+    'xsrfHeaderName': defaultToConfig2,
+    'onUploadProgress': defaultToConfig2,
+    'onDownloadProgress': defaultToConfig2,
+    'decompress': defaultToConfig2,
+    'maxContentLength': defaultToConfig2,
+    'maxBodyLength': defaultToConfig2,
+    'transport': defaultToConfig2,
+    'httpAgent': defaultToConfig2,
+    'httpsAgent': defaultToConfig2,
+    'cancelToken': defaultToConfig2,
+    'socketPath': defaultToConfig2,
+    'responseEncoding': defaultToConfig2,
+    'validateStatus': mergeDirectKeys
+  };
+
+  utils.forEach(Object.keys(config1).concat(Object.keys(config2)), function computeConfigValue(prop) {
+    var merge = mergeMap[prop] || mergeDeepProperties;
+    var configValue = merge(prop);
+    (utils.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  return config;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/settle.js":
+/*!***********************************************!*\
+  !*** ./node_modules/axios/lib/core/settle.js ***!
+  \***********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var createError = __webpack_require__(/*! ./createError */ "./node_modules/axios/lib/core/createError.js");
+
+/**
+ * Resolve or reject a Promise based on response status.
+ *
+ * @param {Function} resolve A function that resolves the promise.
+ * @param {Function} reject A function that rejects the promise.
+ * @param {object} response The response.
+ */
+module.exports = function settle(resolve, reject, response) {
+  var validateStatus = response.config.validateStatus;
+  if (!response.status || !validateStatus || validateStatus(response.status)) {
+    resolve(response);
+  } else {
+    reject(createError(
+      'Request failed with status code ' + response.status,
+      response.config,
+      null,
+      response.request,
+      response
+    ));
+  }
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/transformData.js":
+/*!******************************************************!*\
+  !*** ./node_modules/axios/lib/core/transformData.js ***!
+  \******************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+var defaults = __webpack_require__(/*! ./../defaults */ "./node_modules/axios/lib/defaults.js");
+
+/**
+ * Transform the data for a request or a response
+ *
+ * @param {Object|String} data The data to be transformed
+ * @param {Array} headers The headers for the request or response
+ * @param {Array|Function} fns A single function or Array of functions
+ * @returns {*} The resulting transformed data
+ */
+module.exports = function transformData(data, headers, fns) {
+  var context = this || defaults;
+  /*eslint no-param-reassign:0*/
+  utils.forEach(fns, function transform(fn) {
+    data = fn.call(context, data, headers);
+  });
+
+  return data;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/defaults.js":
+/*!********************************************!*\
+  !*** ./node_modules/axios/lib/defaults.js ***!
+  \********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/axios/lib/utils.js");
+var normalizeHeaderName = __webpack_require__(/*! ./helpers/normalizeHeaderName */ "./node_modules/axios/lib/helpers/normalizeHeaderName.js");
+var enhanceError = __webpack_require__(/*! ./core/enhanceError */ "./node_modules/axios/lib/core/enhanceError.js");
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = __webpack_require__(/*! ./adapters/xhr */ "./node_modules/axios/lib/adapters/xhr.js");
+  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // For node use HTTP adapter
+    adapter = __webpack_require__(/*! ./adapters/http */ "./node_modules/axios/lib/adapters/xhr.js");
+  }
+  return adapter;
+}
+
+function stringifySafely(rawValue, parser, encoder) {
+  if (utils.isString(rawValue)) {
+    try {
+      (parser || JSON.parse)(rawValue);
+      return utils.trim(rawValue);
+    } catch (e) {
+      if (e.name !== 'SyntaxError') {
+        throw e;
+      }
+    }
+  }
+
+  return (encoder || JSON.stringify)(rawValue);
+}
+
+var defaults = {
+
+  transitional: {
+    silentJSONParsing: true,
+    forcedJSONParsing: true,
+    clarifyTimeoutError: false
+  },
+
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Accept');
+    normalizeHeaderName(headers, 'Content-Type');
+
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (utils.isObject(data) || (headers && headers['Content-Type'] === 'application/json')) {
+      setContentTypeIfUnset(headers, 'application/json');
+      return stringifySafely(data);
+    }
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    var transitional = this.transitional || defaults.transitional;
+    var silentJSONParsing = transitional && transitional.silentJSONParsing;
+    var forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+    var strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
+
+    if (strictJSONParsing || (forcedJSONParsing && utils.isString(data) && data.length)) {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        if (strictJSONParsing) {
+          if (e.name === 'SyntaxError') {
+            throw enhanceError(e, this, 'E_JSON_PARSE');
+          }
+          throw e;
+        }
+      }
+    }
+
+    return data;
+  }],
+
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+  maxBodyLength: -1,
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  },
+
+  headers: {
+    common: {
+      'Accept': 'application/json, text/plain, */*'
+    }
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/env/data.js":
+/*!********************************************!*\
+  !*** ./node_modules/axios/lib/env/data.js ***!
+  \********************************************/
+/***/ ((module) => {
+
+module.exports = {
+  "version": "0.24.0"
+};
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/bind.js":
+/*!************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/bind.js ***!
+  \************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/buildURL.js":
+/*!****************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/buildURL.js ***!
+  \****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+function encode(val) {
+  return encodeURIComponent(val).
+    replace(/%3A/gi, ':').
+    replace(/%24/g, '$').
+    replace(/%2C/gi, ',').
+    replace(/%20/g, '+').
+    replace(/%5B/gi, '[').
+    replace(/%5D/gi, ']');
+}
+
+/**
+ * Build a URL by appending params to the end
+ *
+ * @param {string} url The base of the url (e.g., http://www.google.com)
+ * @param {object} [params] The params to be appended
+ * @returns {string} The formatted url
+ */
+module.exports = function buildURL(url, params, paramsSerializer) {
+  /*eslint no-param-reassign:0*/
+  if (!params) {
+    return url;
+  }
+
+  var serializedParams;
+  if (paramsSerializer) {
+    serializedParams = paramsSerializer(params);
+  } else if (utils.isURLSearchParams(params)) {
+    serializedParams = params.toString();
+  } else {
+    var parts = [];
+
+    utils.forEach(params, function serialize(val, key) {
+      if (val === null || typeof val === 'undefined') {
+        return;
+      }
+
+      if (utils.isArray(val)) {
+        key = key + '[]';
+      } else {
+        val = [val];
+      }
+
+      utils.forEach(val, function parseValue(v) {
+        if (utils.isDate(v)) {
+          v = v.toISOString();
+        } else if (utils.isObject(v)) {
+          v = JSON.stringify(v);
+        }
+        parts.push(encode(key) + '=' + encode(v));
+      });
+    });
+
+    serializedParams = parts.join('&');
+  }
+
+  if (serializedParams) {
+    var hashmarkIndex = url.indexOf('#');
+    if (hashmarkIndex !== -1) {
+      url = url.slice(0, hashmarkIndex);
+    }
+
+    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+  }
+
+  return url;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/combineURLs.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/combineURLs.js ***!
+  \*******************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Creates a new URL by combining the specified URLs
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} relativeURL The relative URL
+ * @returns {string} The combined URL
+ */
+module.exports = function combineURLs(baseURL, relativeURL) {
+  return relativeURL
+    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    : baseURL;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/cookies.js":
+/*!***************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/cookies.js ***!
+  \***************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs support document.cookie
+    (function standardBrowserEnv() {
+      return {
+        write: function write(name, value, expires, path, domain, secure) {
+          var cookie = [];
+          cookie.push(name + '=' + encodeURIComponent(value));
+
+          if (utils.isNumber(expires)) {
+            cookie.push('expires=' + new Date(expires).toGMTString());
+          }
+
+          if (utils.isString(path)) {
+            cookie.push('path=' + path);
+          }
+
+          if (utils.isString(domain)) {
+            cookie.push('domain=' + domain);
+          }
+
+          if (secure === true) {
+            cookie.push('secure');
+          }
+
+          document.cookie = cookie.join('; ');
+        },
+
+        read: function read(name) {
+          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+          return (match ? decodeURIComponent(match[3]) : null);
+        },
+
+        remove: function remove(name) {
+          this.write(name, '', Date.now() - 86400000);
+        }
+      };
+    })() :
+
+  // Non standard browser env (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return {
+        write: function write() {},
+        read: function read() { return null; },
+        remove: function remove() {}
+      };
+    })()
+);
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isAbsoluteURL.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/isAbsoluteURL.js ***!
+  \*********************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
+module.exports = function isAbsoluteURL(url) {
+  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+  // by any combination of letters, digits, plus, period, or hyphen.
+  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isAxiosError.js":
+/*!********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/isAxiosError.js ***!
+  \********************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return (typeof payload === 'object') && (payload.isAxiosError === true);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isURLSameOrigin.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/isURLSameOrigin.js ***!
+  \***********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs have full support of the APIs needed to test
+  // whether the request URL is of the same origin as current location.
+    (function standardBrowserEnv() {
+      var msie = /(msie|trident)/i.test(navigator.userAgent);
+      var urlParsingNode = document.createElement('a');
+      var originURL;
+
+      /**
+    * Parse a URL to discover it's components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+      function resolveURL(url) {
+        var href = url;
+
+        if (msie) {
+        // IE needs attribute set twice to normalize properties
+          urlParsingNode.setAttribute('href', href);
+          href = urlParsingNode.href;
+        }
+
+        urlParsingNode.setAttribute('href', href);
+
+        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+        return {
+          href: urlParsingNode.href,
+          protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+          host: urlParsingNode.host,
+          search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+          hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+          hostname: urlParsingNode.hostname,
+          port: urlParsingNode.port,
+          pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+            urlParsingNode.pathname :
+            '/' + urlParsingNode.pathname
+        };
+      }
+
+      originURL = resolveURL(window.location.href);
+
+      /**
+    * Determine if a URL shares the same origin as the current location
+    *
+    * @param {String} requestURL The URL to test
+    * @returns {boolean} True if URL shares the same origin, otherwise false
+    */
+      return function isURLSameOrigin(requestURL) {
+        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+        return (parsed.protocol === originURL.protocol &&
+            parsed.host === originURL.host);
+      };
+    })() :
+
+  // Non standard browser envs (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return function isURLSameOrigin() {
+        return true;
+      };
+    })()
+);
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/normalizeHeaderName.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/normalizeHeaderName.js ***!
+  \***************************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.js");
+
+module.exports = function normalizeHeaderName(headers, normalizedName) {
+  utils.forEach(headers, function processHeader(value, name) {
+    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+      headers[normalizedName] = value;
+      delete headers[name];
+    }
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/parseHeaders.js":
+/*!********************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/parseHeaders.js ***!
+  \********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/spread.js":
+/*!**************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/spread.js ***!
+  \**************************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/**
+ * Syntactic sugar for invoking a function and expanding an array for arguments.
+ *
+ * Common use case would be to use `Function.prototype.apply`.
+ *
+ *  ```js
+ *  function f(x, y, z) {}
+ *  var args = [1, 2, 3];
+ *  f.apply(null, args);
+ *  ```
+ *
+ * With `spread` this example can be re-written.
+ *
+ *  ```js
+ *  spread(function(x, y, z) {})([1, 2, 3]);
+ *  ```
+ *
+ * @param {Function} callback
+ * @returns {Function}
+ */
+module.exports = function spread(callback) {
+  return function wrap(arr) {
+    return callback.apply(null, arr);
+  };
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/validator.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/axios/lib/helpers/validator.js ***!
+  \*****************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var VERSION = (__webpack_require__(/*! ../env/data */ "./node_modules/axios/lib/env/data.js").version);
+
+var validators = {};
+
+// eslint-disable-next-line func-names
+['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function(type, i) {
+  validators[type] = function validator(thing) {
+    return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
+  };
+});
+
+var deprecatedWarnings = {};
+
+/**
+ * Transitional option validator
+ * @param {function|boolean?} validator - set to false if the transitional option has been removed
+ * @param {string?} version - deprecated version / removed since version
+ * @param {string?} message - some message with additional info
+ * @returns {function}
+ */
+validators.transitional = function transitional(validator, version, message) {
+  function formatMessage(opt, desc) {
+    return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
+  }
+
+  // eslint-disable-next-line func-names
+  return function(value, opt, opts) {
+    if (validator === false) {
+      throw new Error(formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')));
+    }
+
+    if (version && !deprecatedWarnings[opt]) {
+      deprecatedWarnings[opt] = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        formatMessage(
+          opt,
+          ' has been deprecated since v' + version + ' and will be removed in the near future'
+        )
+      );
+    }
+
+    return validator ? validator(value, opt, opts) : true;
+  };
+};
+
+/**
+ * Assert object's properties type
+ * @param {object} options
+ * @param {object} schema
+ * @param {boolean?} allowUnknown
+ */
+
+function assertOptions(options, schema, allowUnknown) {
+  if (typeof options !== 'object') {
+    throw new TypeError('options must be an object');
+  }
+  var keys = Object.keys(options);
+  var i = keys.length;
+  while (i-- > 0) {
+    var opt = keys[i];
+    var validator = schema[opt];
+    if (validator) {
+      var value = options[opt];
+      var result = value === undefined || validator(value, opt, options);
+      if (result !== true) {
+        throw new TypeError('option ' + opt + ' must be ' + result);
+      }
+      continue;
+    }
+    if (allowUnknown !== true) {
+      throw Error('Unknown option ' + opt);
+    }
+  }
+}
+
+module.exports = {
+  assertOptions: assertOptions,
+  validators: validators
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/utils.js":
+/*!*****************************************!*\
+  !*** ./node_modules/axios/lib/utils.js ***!
+  \*****************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
+
+// utils is a library of generic helper functions non-specific to axios
+
+var toString = Object.prototype.toString;
+
+/**
+ * Determine if a value is an Array
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Array, otherwise false
+ */
+function isArray(val) {
+  return toString.call(val) === '[object Array]';
+}
+
+/**
+ * Determine if a value is undefined
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+/**
+ * Determine if a value is a Buffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Buffer, otherwise false
+ */
+function isBuffer(val) {
+  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
+    && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
+}
+
+/**
+ * Determine if a value is an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+ */
+function isArrayBuffer(val) {
+  return toString.call(val) === '[object ArrayBuffer]';
+}
+
+/**
+ * Determine if a value is a FormData
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an FormData, otherwise false
+ */
+function isFormData(val) {
+  return (typeof FormData !== 'undefined') && (val instanceof FormData);
+}
+
+/**
+ * Determine if a value is a view on an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+ */
+function isArrayBufferView(val) {
+  var result;
+  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+    result = ArrayBuffer.isView(val);
+  } else {
+    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+  }
+  return result;
+}
+
+/**
+ * Determine if a value is a String
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a String, otherwise false
+ */
+function isString(val) {
+  return typeof val === 'string';
+}
+
+/**
+ * Determine if a value is a Number
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Number, otherwise false
+ */
+function isNumber(val) {
+  return typeof val === 'number';
+}
+
+/**
+ * Determine if a value is an Object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Object, otherwise false
+ */
+function isObject(val) {
+  return val !== null && typeof val === 'object';
+}
+
+/**
+ * Determine if a value is a plain Object
+ *
+ * @param {Object} val The value to test
+ * @return {boolean} True if value is a plain Object, otherwise false
+ */
+function isPlainObject(val) {
+  if (toString.call(val) !== '[object Object]') {
+    return false;
+  }
+
+  var prototype = Object.getPrototypeOf(val);
+  return prototype === null || prototype === Object.prototype;
+}
+
+/**
+ * Determine if a value is a Date
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Date, otherwise false
+ */
+function isDate(val) {
+  return toString.call(val) === '[object Date]';
+}
+
+/**
+ * Determine if a value is a File
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+function isFile(val) {
+  return toString.call(val) === '[object File]';
+}
+
+/**
+ * Determine if a value is a Blob
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Blob, otherwise false
+ */
+function isBlob(val) {
+  return toString.call(val) === '[object Blob]';
+}
+
+/**
+ * Determine if a value is a Function
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Function, otherwise false
+ */
+function isFunction(val) {
+  return toString.call(val) === '[object Function]';
+}
+
+/**
+ * Determine if a value is a Stream
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Stream, otherwise false
+ */
+function isStream(val) {
+  return isObject(val) && isFunction(val.pipe);
+}
+
+/**
+ * Determine if a value is a URLSearchParams object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+ */
+function isURLSearchParams(val) {
+  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
+}
+
+/**
+ * Trim excess whitespace off the beginning and end of a string
+ *
+ * @param {String} str The String to trim
+ * @returns {String} The String freed of excess whitespace
+ */
+function trim(str) {
+  return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g, '');
+}
+
+/**
+ * Determine if we're running in a standard browser environment
+ *
+ * This allows axios to run in a web worker, and react-native.
+ * Both environments support XMLHttpRequest, but not fully standard globals.
+ *
+ * web workers:
+ *  typeof window -> undefined
+ *  typeof document -> undefined
+ *
+ * react-native:
+ *  navigator.product -> 'ReactNative'
+ * nativescript
+ *  navigator.product -> 'NativeScript' or 'NS'
+ */
+function isStandardBrowserEnv() {
+  if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
+                                           navigator.product === 'NativeScript' ||
+                                           navigator.product === 'NS')) {
+    return false;
+  }
+  return (
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined'
+  );
+}
+
+/**
+ * Iterate over an Array or an Object invoking a function for each item.
+ *
+ * If `obj` is an Array callback will be called passing
+ * the value, index, and complete array for each item.
+ *
+ * If 'obj' is an Object callback will be called passing
+ * the value, key, and complete object for each property.
+ *
+ * @param {Object|Array} obj The object to iterate
+ * @param {Function} fn The callback to invoke for each item
+ */
+function forEach(obj, fn) {
+  // Don't bother if no value provided
+  if (obj === null || typeof obj === 'undefined') {
+    return;
+  }
+
+  // Force an array if not already something iterable
+  if (typeof obj !== 'object') {
+    /*eslint no-param-reassign:0*/
+    obj = [obj];
+  }
+
+  if (isArray(obj)) {
+    // Iterate over array values
+    for (var i = 0, l = obj.length; i < l; i++) {
+      fn.call(null, obj[i], i, obj);
+    }
+  } else {
+    // Iterate over object keys
+    for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fn.call(null, obj[key], key, obj);
+      }
+    }
+  }
+}
+
+/**
+ * Accepts varargs expecting each argument to be an object, then
+ * immutably merges the properties of each object and returns result.
+ *
+ * When multiple objects contain the same key the later object in
+ * the arguments list will take precedence.
+ *
+ * Example:
+ *
+ * ```js
+ * var result = merge({foo: 123}, {foo: 456});
+ * console.log(result.foo); // outputs 456
+ * ```
+ *
+ * @param {Object} obj1 Object to merge
+ * @returns {Object} Result of all merge properties
+ */
+function merge(/* obj1, obj2, obj3, ... */) {
+  var result = {};
+  function assignValue(val, key) {
+    if (isPlainObject(result[key]) && isPlainObject(val)) {
+      result[key] = merge(result[key], val);
+    } else if (isPlainObject(val)) {
+      result[key] = merge({}, val);
+    } else if (isArray(val)) {
+      result[key] = val.slice();
+    } else {
+      result[key] = val;
+    }
+  }
+
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    forEach(arguments[i], assignValue);
+  }
+  return result;
+}
+
+/**
+ * Extends object a by mutably adding to it the properties of object b.
+ *
+ * @param {Object} a The object to be extended
+ * @param {Object} b The object to copy properties from
+ * @param {Object} thisArg The object to bind function to
+ * @return {Object} The resulting value of object a
+ */
+function extend(a, b, thisArg) {
+  forEach(b, function assignValue(val, key) {
+    if (thisArg && typeof val === 'function') {
+      a[key] = bind(val, thisArg);
+    } else {
+      a[key] = val;
+    }
+  });
+  return a;
+}
+
+/**
+ * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
+ *
+ * @param {string} content with BOM
+ * @return {string} content value without BOM
+ */
+function stripBOM(content) {
+  if (content.charCodeAt(0) === 0xFEFF) {
+    content = content.slice(1);
+  }
+  return content;
+}
+
+module.exports = {
+  isArray: isArray,
+  isArrayBuffer: isArrayBuffer,
+  isBuffer: isBuffer,
+  isFormData: isFormData,
+  isArrayBufferView: isArrayBufferView,
+  isString: isString,
+  isNumber: isNumber,
+  isObject: isObject,
+  isPlainObject: isPlainObject,
+  isUndefined: isUndefined,
+  isDate: isDate,
+  isFile: isFile,
+  isBlob: isBlob,
+  isFunction: isFunction,
+  isStream: isStream,
+  isURLSearchParams: isURLSearchParams,
+  isStandardBrowserEnv: isStandardBrowserEnv,
+  forEach: forEach,
+  merge: merge,
+  extend: extend,
+  trim: trim,
+  stripBOM: stripBOM
+};
+
+
+/***/ }),
+
 /***/ "./src/About.js":
 /*!**********************!*\
   !*** ./src/About.js ***!
@@ -22,42 +2167,73 @@ const About = props => {
     id: "about"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h2", null, "About me: I'm John Pirog and I love writing code!"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
     id: "aboutlive",
-    src: "liveforthecode.jpg"
+    src: "liveforthecode.jpg",
+    alt: "John Pirog - full stack develper"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "proficiency"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "apirest.png"
+    src: "apirest.png",
+    alt: "REST API"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "axios.png"
+    src: "axios.png",
+    alt: "axios"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "babel.png"
+    src: "babel.png",
+    alt: "Babel"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "css.png"
+    src: "css.png",
+    alt: "CSS"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "express.png"
+    src: "express.png",
+    alt: "Express"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "git.png"
+    src: "git.png",
+    alt: "Git"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "html.png"
+    src: "html.png",
+    alt: "HTML"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "javascript.png"
+    src: "javascript.png",
+    alt: "Javascript"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "json.png"
+    src: "json.png",
+    alt: "JSON"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "node.png"
+    src: "node.png",
+    alt: "Node"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "postgres.png"
+    src: "postgres.png",
+    alt: "Postgres"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "react.png"
+    src: "react.png",
+    alt: "ReactJS React"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "redux.png"
+    src: "redux.png",
+    alt: "Redux"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "sequelize.png"
+    src: "sequelize.png",
+    alt: "Sequelize"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-    src: "webpack.png"
+    src: "sql-server.png",
+    alt: "SQL"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    src: "webpack.png",
+    alt: "Webpack"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    src: "oracle.png",
+    alt: "Oracle"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    src: "b2b.png",
+    alt: "Oracle"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    src: "b2c.png",
+    alt: "Oracle"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    src: "technology.png",
+    alt: "Oracle"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "ERP - Oracle eBusiness Suite"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "eCommerce - B2B and B2C"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Solutions architecture"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", null, "Business relationship management")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", {
     id: "abouttext"
-  }, "Over the years, I've developed software in many languages and platforms. From mainframes to Unix to Windows to the web, I've programmed in languages like Perl, Python, SQL Windows, Microsoft products, and now the latest web technologies. I've always kept efficiency, performance, and memory considerations in mind when developing."));
+  }, "Over the years, I've developed software in many languages and platforms. From mainframes to Unix to Windows to the web, I've programmed in languages like Python, SQL Windows, Microsoft products, and now Javascript, React, and the latest web technologies. The most important thing when developing is to ensure the produce meets what the business users need for the company to thrive."));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (About);
@@ -117,7 +2293,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_hook_form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-hook-form */ "./node_modules/react-hook-form/dist/index.esm.js");
 /* harmony import */ var _PageTitle__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageTitle */ "./src/PageTitle.js");
+/* harmony import */ var cuss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! cuss */ "./node_modules/cuss/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 
 
 
@@ -133,31 +2313,74 @@ const Contact = () => {
     },
     handleSubmit
   } = (0,react_hook_form__WEBPACK_IMPORTED_MODULE_1__.useForm)();
-  const [result, setResult] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("");
+  const [result, setResult] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
 
-  const onSubmit = data => setResult(JSON.stringify(data));
+  const onSubmit = (ev, data) => {
+    ev.preventDefault();
+    const name = ev.target.name.value;
+    const email = ev.target.email.value;
+    const msg = ev.target.message.value;
+    const errs = [];
+
+    if (name.trim().length === 0 || name.trim().length > 50) {
+      errs.push('Please enter your name (limit to 50 characters)\n');
+    }
+
+    ;
+
+    if (email.trim().length === 0 || name.trim().length > 100) {
+      errs.push('Please enter a valid email (limit to 100 characters)\n');
+    }
+
+    if (msg.trim().length === 0 || msg.trim().length > 500) {
+      errs.push('Please enter a message (limit to 500 characters)\n');
+    }
+
+    const cussWords = msg.split(' ').some(c => cuss__WEBPACK_IMPORTED_MODULE_4__.cuss[c] && cuss__WEBPACK_IMPORTED_MODULE_4__.cuss[c] > 1);
+
+    if (cussWords) {
+      errs.push('The profanity filter detected at least one expletive. Please rephrase your message.');
+    }
+
+    if (errs.length > 0) {
+      setResult(errs);
+      return;
+    }
+
+    axios__WEBPACK_IMPORTED_MODULE_3___default().post('/contactme', {
+      name,
+      email,
+      msg
+    });
+    setResult(['Thanks for your message, I\'ll get back to you shortly']);
+    ev.target.reset();
+  };
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("section", {
     id: "contact"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_PageTitle__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    headingText: "Contact"
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h2", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h2", {
     id: "contacthead"
   }, "Have a question or want to work together?"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h3", {
     id: "contactemail"
-  }, "Send an email (", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", {
-    href: "mailto: john.pirog@gmail.com"
-  }, "john.pirog@gmail.com"), ") or use the form below"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", {
-    onSubmit: handleSubmit(onSubmit)
+  }, "Contact me at through ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", {
+    href: "mailto: john.pirog@gmail.com",
+    target: "_blank"
+  }, "email"), " or use the form below"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    id: "contactsplit"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
+    src: "contactphoto.jpg",
+    alt: "John Pirog - full stack developer"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("form", {
+    onSubmit: ev => onSubmit(ev)
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
     className: "form-wrapper"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
     className: "form-row"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
     htmlFor: "name"
-  }, "Name:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", _extends({}, register("name", {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", _extends({}, register("name", {
     required: true,
-    maxLength: 30
+    maxLength: 50
   }), {
     placeholder: "Name",
     required: true,
@@ -167,9 +2390,9 @@ const Contact = () => {
     className: "form-row"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
     htmlFor: "email"
-  }, "Email:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", _extends({}, register("email", {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", _extends({}, register("email", {
     required: true,
-    maxLength: 75
+    maxLength: 100
   }), {
     placeholder: "Email",
     type: "email",
@@ -180,7 +2403,7 @@ const Contact = () => {
     className: "form-row"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
     htmlFor: "Message"
-  }, "Message:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("textarea", _extends({}, register("message", {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("textarea", _extends({}, register("message", {
     required: true,
     maxLength: 500
   }), {
@@ -188,13 +2411,22 @@ const Contact = () => {
     required: true,
     cols: 50,
     rows: 5
-  })), errors.message && "Please enter a message"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, result), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
+  })), errors.message && "Please enter a message"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
+    id: "formmsg"
+  }, result.map((c, i) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
+    key: i
+  }, c))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "form-row",
-    type: "submit"
-  }))));
+    id: "subbutton"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("label", {
+    htmlFor: "xxxxx"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
+    type: "submit",
+    id: "submit"
+  }))))));
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Contact);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Contact); // <form onSubmit={handleSubmit(onSubmit)}>
 
 /***/ }),
 
@@ -279,7 +2511,8 @@ const HomeTop = () => {
     id: "herocontainer"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
     id: "homehero",
-    src: "/homeimg1.jpeg"
+    src: "/homeimg1.jpeg",
+    alt: "Background for John Pirog - full stack developer"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     id: "herotop"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Hello, I'm John Pirog"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "\xA0\xA0\xA0Full Stack web developer", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("br", null), "\xA0\xA0\xA0\xA0\xA0and software engineer"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, "Let's collaborate...")));
@@ -36540,6 +38773,1799 @@ function _extends() {
 
   return _extends.apply(this, arguments);
 }
+
+/***/ }),
+
+/***/ "./node_modules/cuss/index.js":
+/*!************************************!*\
+  !*** ./node_modules/cuss/index.js ***!
+  \************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "cuss": () => (/* binding */ cuss)
+/* harmony export */ });
+const cuss = {
+  abbo: 1,
+  abeed: 2,
+  abid: 1,
+  abo: 1,
+  abortion: 1,
+  abuse: 1,
+  addict: 1,
+  addicts: 1,
+  adult: 0,
+  africa: 0,
+  african: 0,
+  africoon: 2,
+  alla: 1,
+  allah: 0,
+  'alligator bait': 2,
+  alligatorbait: 2,
+  amateur: 0,
+  american: 0,
+  anal: 1,
+  analannie: 2,
+  analsex: 1,
+  angie: 0,
+  angry: 0,
+  anus: 1,
+  arab: 0,
+  arabs: 0,
+  arabush: 2,
+  arabushs: 2,
+  areola: 1,
+  argie: 2,
+  armo: 2,
+  armos: 2,
+  aroused: 0,
+  arse: 2,
+  arsehole: 2,
+  asian: 0,
+  ass: 2,
+  assassin: 0,
+  assassinate: 0,
+  assassination: 0,
+  assault: 0,
+  assbagger: 2,
+  assblaster: 2,
+  assclown: 2,
+  asscowboy: 2,
+  asses: 2,
+  assfuck: 2,
+  assfucker: 2,
+  asshat: 2,
+  asshole: 2,
+  assholes: 2,
+  asshore: 2,
+  assjockey: 2,
+  asskiss: 2,
+  asskisser: 2,
+  assklown: 2,
+  asslick: 2,
+  asslicker: 2,
+  asslover: 2,
+  assman: 2,
+  assmonkey: 2,
+  assmunch: 2,
+  assmuncher: 2,
+  asspacker: 2,
+  asspirate: 2,
+  asspuppies: 2,
+  assranger: 2,
+  asswhore: 2,
+  asswipe: 2,
+  athletesfoot: 1,
+  attack: 0,
+  australian: 0,
+  babe: 1,
+  babies: 0,
+  backdoor: 0,
+  backdoorman: 2,
+  backseat: 0,
+  badfuck: 2,
+  balllicker: 2,
+  balls: 1,
+  ballsack: 1,
+  banana: 0,
+  bananas: 0,
+  banging: 1,
+  baptist: 0,
+  barelylegal: 2,
+  barf: 2,
+  barface: 2,
+  barfface: 2,
+  bast: 0,
+  bastard: 1,
+  bazongas: 2,
+  bazooms: 2,
+  beanbag: 2,
+  beanbags: 2,
+  beaner: 2,
+  beaners: 2,
+  beaney: 2,
+  beaneys: 2,
+  beast: 0,
+  beastality: 1,
+  beastial: 1,
+  beastiality: 1,
+  beatoff: 2,
+  beatyourmeat: 2,
+  beaver: 0,
+  bestial: 1,
+  bestiality: 1,
+  bi: 0,
+  biatch: 2,
+  bible: 0,
+  bicurious: 1,
+  bigass: 2,
+  bigbastard: 2,
+  bigbutt: 2,
+  bigger: 0,
+  bisexual: 0,
+  bitch: 1,
+  bitcher: 2,
+  bitches: 1,
+  bitchez: 2,
+  bitchin: 2,
+  bitching: 2,
+  bitchslap: 2,
+  bitchy: 2,
+  biteme: 2,
+  black: 0,
+  blackman: 1,
+  blackout: 0,
+  blacks: 1,
+  blind: 0,
+  blow: 0,
+  blowjob: 2,
+  bluegum: 2,
+  bluegums: 2,
+  boang: 2,
+  boche: 2,
+  boches: 2,
+  bogan: 2,
+  bohunk: 2,
+  bollick: 2,
+  bollock: 2,
+  bollocks: 2,
+  bomb: 0,
+  bombers: 0,
+  bombing: 0,
+  bombs: 0,
+  bomd: 0,
+  bondage: 1,
+  boner: 2,
+  bong: 2,
+  boob: 1,
+  boobies: 2,
+  boobs: 1,
+  booby: 2,
+  boody: 2,
+  boom: 0,
+  boong: 2,
+  boonga: 2,
+  boongas: 2,
+  boongs: 2,
+  boonie: 2,
+  boonies: 2,
+  bootlip: 2,
+  bootlips: 2,
+  booty: 2,
+  bootycall: 2,
+  bosch: 0,
+  bosche: 2,
+  bosches: 2,
+  boschs: 2,
+  'bounty bar': 1,
+  'bounty bars': 1,
+  bountybar: 1,
+  bra: 0,
+  brea5t: 2,
+  breast: 0,
+  breastjob: 2,
+  breastlover: 2,
+  breastman: 2,
+  brothel: 1,
+  brownie: 0,
+  brownies: 0,
+  buddhahead: 2,
+  buddhaheads: 2,
+  buffies: 2,
+  buffy: 0,
+  bugger: 2,
+  buggered: 2,
+  buggery: 2,
+  bule: 2,
+  bules: 2,
+  bullcrap: 2,
+  bulldike: 2,
+  bulldyke: 2,
+  bullshit: 2,
+  bumblefuck: 2,
+  bumfuck: 2,
+  bung: 2,
+  bunga: 2,
+  bungas: 2,
+  bunghole: 2,
+  buried: 0,
+  burn: 0,
+  'burr head': 2,
+  'burr heads': 2,
+  burrhead: 2,
+  burrheads: 2,
+  butchbabes: 2,
+  butchdike: 2,
+  butchdyke: 2,
+  butt: 0,
+  buttbang: 2,
+  buttface: 2,
+  buttfuck: 2,
+  buttfucker: 2,
+  buttfuckers: 2,
+  butthead: 2,
+  buttman: 2,
+  buttmunch: 2,
+  buttmuncher: 2,
+  buttpirate: 2,
+  buttplug: 1,
+  buttstain: 2,
+  byatch: 2,
+  cacker: 2,
+  'camel jockey': 2,
+  'camel jockeys': 2,
+  cameljockey: 2,
+  cameltoe: 2,
+  canadian: 0,
+  cancer: 0,
+  carpetmuncher: 2,
+  carruth: 2,
+  catholic: 0,
+  catholics: 0,
+  cemetery: 0,
+  chav: 2,
+  'cheese eating surrender monkey': 2,
+  'cheese eating surrender monkies': 2,
+  'cheeseeating surrender monkey': 2,
+  'cheeseeating surrender monkies': 2,
+  cheesehead: 2,
+  cheeseheads: 2,
+  cherrypopper: 2,
+  chickslick: 2,
+  childrens: 0,
+  chin: 0,
+  'china swede': 2,
+  'china swedes': 2,
+  chinaman: 2,
+  chinamen: 2,
+  chinaswede: 2,
+  chinaswedes: 2,
+  chinese: 0,
+  'ching chong': 2,
+  'ching chongs': 2,
+  chingchong: 2,
+  chingchongs: 2,
+  chink: 2,
+  chinks: 2,
+  chinky: 2,
+  choad: 2,
+  chode: 2,
+  chonkies: 2,
+  chonky: 2,
+  chonkys: 2,
+  christ: 0,
+  'christ killer': 2,
+  'christ killers': 2,
+  christian: 0,
+  chug: 2,
+  chugs: 2,
+  chunger: 2,
+  chungers: 2,
+  chunkies: 2,
+  chunky: 2,
+  chunkys: 2,
+  church: 0,
+  cigarette: 0,
+  cigs: 0,
+  clamdigger: 2,
+  clamdiver: 2,
+  clansman: 2,
+  clansmen: 2,
+  clanswoman: 2,
+  clanswomen: 2,
+  clit: 1,
+  clitoris: 1,
+  clogwog: 2,
+  cocaine: 1,
+  cock: 1,
+  cockblock: 2,
+  cockblocker: 2,
+  cockcowboy: 2,
+  cockfight: 2,
+  cockhead: 2,
+  cockknob: 2,
+  cocklicker: 2,
+  cocklover: 2,
+  cocknob: 2,
+  cockqueen: 2,
+  cockrider: 2,
+  cocksman: 2,
+  cocksmith: 2,
+  cocksmoker: 2,
+  cocksucer: 2,
+  cocksuck: 2,
+  cocksucked: 2,
+  cocksucker: 2,
+  cocksucking: 2,
+  cocktail: 0,
+  cocktease: 2,
+  cocky: 2,
+  coconut: 0,
+  coconuts: 0,
+  cohee: 2,
+  coitus: 1,
+  color: 0,
+  colored: 0,
+  coloured: 0,
+  commie: 2,
+  communist: 0,
+  condom: 1,
+  conservative: 0,
+  conspiracy: 0,
+  coolie: 2,
+  coolies: 2,
+  cooly: 2,
+  coon: 2,
+  'coon ass': 2,
+  'coon asses': 2,
+  coonass: 2,
+  coonasses: 2,
+  coondog: 2,
+  coons: 2,
+  copulate: 1,
+  cornhole: 2,
+  corruption: 0,
+  cra5h: 1,
+  crabs: 0,
+  crack: 1,
+  cracka: 2,
+  cracker: 1,
+  crackpipe: 1,
+  crackwhore: 2,
+  crap: 2,
+  crapola: 2,
+  crapper: 2,
+  crappy: 2,
+  crash: 0,
+  creamy: 0,
+  crime: 0,
+  crimes: 0,
+  criminal: 0,
+  criminals: 0,
+  crotch: 1,
+  crotchjockey: 2,
+  crotchmonkey: 2,
+  crotchrot: 2,
+  cum: 2,
+  cumbubble: 2,
+  cumfest: 2,
+  cumjockey: 2,
+  cumm: 2,
+  cummer: 2,
+  cumming: 2,
+  cummings: 1,
+  cumquat: 2,
+  cumqueen: 2,
+  cumshot: 2,
+  cunilingus: 1,
+  cunillingus: 1,
+  cunn: 2,
+  cunnilingus: 1,
+  cunntt: 2,
+  cunt: 2,
+  cunteyed: 2,
+  cuntfuck: 2,
+  cuntfucker: 2,
+  cuntlick: 2,
+  cuntlicker: 2,
+  cuntlicking: 2,
+  cuntsucker: 2,
+  'curry muncher': 2,
+  'curry munchers': 2,
+  currymuncher: 2,
+  currymunchers: 2,
+  cushi: 2,
+  cushis: 2,
+  cybersex: 1,
+  cyberslimer: 2,
+  dago: 2,
+  dagos: 2,
+  dahmer: 2,
+  dammit: 2,
+  damn: 1,
+  damnation: 1,
+  damnit: 2,
+  darkey: 2,
+  darkeys: 2,
+  darkie: 2,
+  darkies: 2,
+  darky: 2,
+  datnigga: 2,
+  dead: 0,
+  deapthroat: 2,
+  death: 0,
+  deepthroat: 2,
+  defecate: 1,
+  dego: 2,
+  degos: 2,
+  demon: 1,
+  deposit: 0,
+  desire: 0,
+  destroy: 0,
+  deth: 0,
+  devil: 1,
+  devilworshipper: 1,
+  'diaper head': 2,
+  'diaper heads': 2,
+  diaperhead: 2,
+  diaperheads: 2,
+  dick: 1,
+  dickbrain: 2,
+  dickforbrains: 2,
+  dickhead: 2,
+  dickless: 2,
+  dicklick: 2,
+  dicklicker: 2,
+  dickman: 2,
+  dickwad: 2,
+  dickweed: 2,
+  diddle: 2,
+  die: 0,
+  died: 0,
+  dies: 0,
+  dike: 1,
+  dildo: 1,
+  dingleberry: 2,
+  dink: 2,
+  dinks: 2,
+  dipshit: 2,
+  dipstick: 2,
+  dirty: 0,
+  disease: 0,
+  diseases: 0,
+  disturbed: 0,
+  dive: 0,
+  dix: 2,
+  dixiedike: 2,
+  dixiedyke: 2,
+  doggiestyle: 2,
+  doggystyle: 2,
+  dong: 2,
+  doodoo: 2,
+  doom: 0,
+  dope: 2,
+  'dot head': 2,
+  'dot heads': 2,
+  dothead: 2,
+  dotheads: 2,
+  dragqueen: 2,
+  dragqween: 2,
+  dripdick: 2,
+  drug: 1,
+  drunk: 1,
+  drunken: 1,
+  dumb: 2,
+  dumbass: 2,
+  dumbbitch: 2,
+  dumbfuck: 2,
+  'dune coon': 2,
+  'dune coons': 2,
+  dyefly: 2,
+  dyke: 1,
+  easyslut: 2,
+  eatballs: 2,
+  eatme: 2,
+  eatpussy: 2,
+  ecstacy: 0,
+  'eight ball': 2,
+  'eight balls': 2,
+  ejaculate: 1,
+  ejaculated: 1,
+  ejaculating: 1,
+  ejaculation: 1,
+  enema: 1,
+  enemy: 0,
+  erect: 0,
+  erection: 1,
+  ero: 2,
+  escort: 0,
+  esqua: 2,
+  ethiopian: 0,
+  ethnic: 0,
+  european: 0,
+  evl: 2,
+  excrement: 1,
+  execute: 0,
+  executed: 0,
+  execution: 0,
+  executioner: 0,
+  exkwew: 2,
+  explosion: 0,
+  facefucker: 2,
+  faeces: 2,
+  fag: 1,
+  fagging: 2,
+  faggot: 2,
+  fagot: 2,
+  failed: 0,
+  failure: 0,
+  fairies: 0,
+  fairy: 0,
+  faith: 0,
+  fannyfucker: 2,
+  fart: 1,
+  farted: 1,
+  farting: 1,
+  farty: 2,
+  fastfuck: 2,
+  fat: 0,
+  fatah: 2,
+  fatass: 2,
+  fatfuck: 2,
+  fatfucker: 2,
+  fatso: 2,
+  fckcum: 2,
+  fear: 0,
+  feces: 1,
+  felatio: 1,
+  felch: 2,
+  felcher: 2,
+  felching: 2,
+  fellatio: 2,
+  feltch: 2,
+  feltcher: 2,
+  feltching: 2,
+  fetish: 1,
+  fight: 0,
+  filipina: 0,
+  filipino: 0,
+  fingerfood: 1,
+  fingerfuck: 2,
+  fingerfucked: 2,
+  fingerfucker: 2,
+  fingerfuckers: 2,
+  fingerfucking: 2,
+  fire: 0,
+  firing: 0,
+  fister: 2,
+  fistfuck: 2,
+  fistfucked: 2,
+  fistfucker: 2,
+  fistfucking: 2,
+  fisting: 2,
+  flange: 2,
+  flasher: 1,
+  flatulence: 1,
+  floo: 2,
+  flydie: 2,
+  flydye: 2,
+  fok: 2,
+  fondle: 1,
+  footaction: 1,
+  footfuck: 2,
+  footfucker: 2,
+  footlicker: 2,
+  footstar: 2,
+  fore: 0,
+  foreskin: 1,
+  forni: 2,
+  fornicate: 1,
+  foursome: 1,
+  fourtwenty: 1,
+  fraud: 0,
+  freakfuck: 2,
+  freakyfucker: 2,
+  freefuck: 2,
+  fruitcake: 1,
+  fu: 2,
+  fubar: 2,
+  fuc: 2,
+  fucck: 2,
+  fuck: 2,
+  fucka: 2,
+  fuckable: 2,
+  fuckbag: 2,
+  fuckbook: 2,
+  fuckbuddy: 2,
+  fucked: 2,
+  fuckedup: 2,
+  fucker: 2,
+  fuckers: 2,
+  fuckface: 2,
+  fuckfest: 2,
+  fuckfreak: 2,
+  fuckfriend: 2,
+  fuckhead: 2,
+  fuckher: 2,
+  fuckin: 2,
+  fuckina: 2,
+  fucking: 2,
+  fuckingbitch: 2,
+  fuckinnuts: 2,
+  fuckinright: 2,
+  fuckit: 2,
+  fuckknob: 2,
+  fuckme: 2,
+  fuckmehard: 2,
+  fuckmonkey: 2,
+  fuckoff: 2,
+  fuckpig: 2,
+  fucks: 2,
+  fucktard: 2,
+  fuckwhore: 2,
+  fuckyou: 2,
+  fudgepacker: 2,
+  fugly: 2,
+  fuk: 2,
+  fuks: 2,
+  funeral: 0,
+  funfuck: 2,
+  fungus: 0,
+  fuuck: 2,
+  gable: 1,
+  gables: 2,
+  gangbang: 2,
+  gangbanged: 2,
+  gangbanger: 2,
+  gangsta: 2,
+  'gator bait': 2,
+  gatorbait: 2,
+  gay: 0,
+  gaymuthafuckinwhore: 2,
+  gaysex: 2,
+  geez: 2,
+  geezer: 2,
+  geni: 2,
+  genital: 1,
+  german: 0,
+  getiton: 2,
+  gin: 0,
+  ginzo: 2,
+  ginzos: 2,
+  gipp: 2,
+  gippo: 2,
+  gippos: 2,
+  gipps: 2,
+  girls: 0,
+  givehead: 2,
+  glazeddonut: 2,
+  gob: 1,
+  god: 1,
+  godammit: 2,
+  goddamit: 2,
+  goddammit: 2,
+  goddamn: 2,
+  goddamned: 2,
+  goddamnes: 2,
+  goddamnit: 2,
+  goddamnmuthafucker: 2,
+  goldenshower: 2,
+  golliwog: 2,
+  golliwogs: 2,
+  gonorrehea: 2,
+  gonzagas: 1,
+  gook: 2,
+  'gook eye': 2,
+  'gook eyes': 2,
+  gookeye: 2,
+  gookeyes: 2,
+  gookies: 2,
+  gooks: 2,
+  gooky: 2,
+  gora: 2,
+  goras: 2,
+  gotohell: 2,
+  goy: 1,
+  goyim: 1,
+  greaseball: 2,
+  greaseballs: 2,
+  greaser: 2,
+  greasers: 2,
+  gringo: 2,
+  gringos: 2,
+  groe: 1,
+  groid: 2,
+  groids: 2,
+  gross: 1,
+  grostulation: 1,
+  gub: 1,
+  gubba: 2,
+  gubbas: 2,
+  gubs: 2,
+  guinea: 1,
+  guineas: 1,
+  guizi: 1,
+  gummer: 2,
+  gun: 0,
+  gwailo: 2,
+  gwailos: 2,
+  gweilo: 2,
+  gweilos: 2,
+  gyopo: 2,
+  gyopos: 2,
+  gyp: 2,
+  gyped: 2,
+  gypo: 2,
+  gypos: 2,
+  gypp: 2,
+  gypped: 2,
+  gyppie: 2,
+  gyppies: 2,
+  gyppo: 2,
+  gyppos: 2,
+  gyppy: 2,
+  gyppys: 2,
+  gypsies: 2,
+  gypsy: 2,
+  gypsys: 2,
+  hadji: 2,
+  hadjis: 2,
+  hairyback: 2,
+  hairybacks: 2,
+  haji: 2,
+  hajis: 2,
+  hajji: 2,
+  hajjis: 2,
+  'half breed': 2,
+  'half caste': 2,
+  halfbreed: 2,
+  halfcaste: 2,
+  hamas: 1,
+  handjob: 2,
+  haole: 2,
+  haoles: 2,
+  hapa: 2,
+  harder: 0,
+  hardon: 2,
+  harem: 0,
+  headfuck: 2,
+  headlights: 0,
+  hebe: 2,
+  hebephila: 1,
+  hebephile: 1,
+  hebephiles: 1,
+  hebephilia: 1,
+  hebephilic: 1,
+  hebes: 2,
+  heeb: 2,
+  heebs: 2,
+  hell: 0,
+  henhouse: 0,
+  heroin: 1,
+  herpes: 1,
+  heterosexual: 0,
+  hijack: 0,
+  hijacker: 0,
+  hijacking: 0,
+  hillbillies: 2,
+  hillbilly: 2,
+  hindoo: 2,
+  hiscock: 2,
+  hitler: 1,
+  hitlerism: 2,
+  hitlerist: 2,
+  hiv: 1,
+  ho: 2,
+  hobo: 2,
+  hodgie: 2,
+  hoes: 2,
+  hole: 0,
+  holestuffer: 2,
+  homicide: 1,
+  homo: 2,
+  homobangers: 2,
+  homosexual: 1,
+  honger: 2,
+  honk: 0,
+  honkers: 2,
+  honkey: 2,
+  honkeys: 2,
+  honkie: 2,
+  honkies: 2,
+  honky: 2,
+  hook: 0,
+  hooker: 2,
+  hookers: 2,
+  hooters: 2,
+  hore: 2,
+  hori: 2,
+  horis: 2,
+  hork: 2,
+  horn: 0,
+  horney: 2,
+  horniest: 2,
+  horny: 1,
+  horseshit: 2,
+  hosejob: 2,
+  hoser: 2,
+  hostage: 0,
+  hotdamn: 2,
+  hotpussy: 2,
+  hottotrot: 2,
+  hummer: 0,
+  hun: 0,
+  huns: 0,
+  husky: 0,
+  hussy: 2,
+  hustler: 0,
+  hymen: 1,
+  hymie: 2,
+  hymies: 2,
+  iblowu: 2,
+  idiot: 2,
+  ike: 1,
+  ikes: 1,
+  ikey: 1,
+  ikeymo: 2,
+  ikeymos: 2,
+  ikwe: 2,
+  illegal: 0,
+  illegals: 1,
+  incest: 1,
+  indon: 2,
+  indons: 2,
+  injun: 2,
+  injuns: 2,
+  insest: 2,
+  intercourse: 1,
+  interracial: 1,
+  intheass: 2,
+  inthebuff: 2,
+  israel: 0,
+  israeli: 0,
+  israels: 0,
+  italiano: 1,
+  itch: 0,
+  jackass: 2,
+  jackoff: 2,
+  jackshit: 2,
+  jacktheripper: 2,
+  jade: 0,
+  jap: 2,
+  japanese: 0,
+  japcrap: 2,
+  japie: 2,
+  japies: 2,
+  japs: 2,
+  jebus: 2,
+  jeez: 2,
+  jerkoff: 2,
+  jerries: 1,
+  jerry: 0,
+  jesus: 1,
+  jesuschrist: 1,
+  jew: 0,
+  jewboy: 2,
+  jewed: 2,
+  jewess: 2,
+  jewish: 0,
+  jig: 2,
+  jiga: 2,
+  jigaboo: 2,
+  jigaboos: 2,
+  jigarooni: 2,
+  jigaroonis: 2,
+  jigg: 2,
+  jigga: 2,
+  jiggabo: 2,
+  jiggabos: 2,
+  jiggas: 2,
+  jigger: 2,
+  jiggers: 2,
+  jiggs: 2,
+  jiggy: 2,
+  jigs: 2,
+  jihad: 1,
+  jijjiboo: 2,
+  jijjiboos: 2,
+  jimfish: 2,
+  jism: 2,
+  jiz: 2,
+  jizim: 2,
+  jizjuice: 2,
+  jizm: 2,
+  jizz: 2,
+  jizzim: 2,
+  jizzum: 2,
+  joint: 0,
+  juggalo: 2,
+  jugs: 0,
+  'jungle bunnies': 2,
+  'jungle bunny': 2,
+  junglebunny: 2,
+  kacap: 2,
+  kacapas: 2,
+  kacaps: 2,
+  kaffer: 2,
+  kaffir: 2,
+  kaffre: 2,
+  kafir: 2,
+  kanake: 2,
+  katsap: 2,
+  katsaps: 2,
+  khokhol: 2,
+  khokhols: 2,
+  kid: 0,
+  kigger: 2,
+  kike: 2,
+  kikes: 2,
+  kill: 0,
+  killed: 0,
+  killer: 0,
+  killing: 0,
+  kills: 0,
+  kimchi: 0,
+  kimchis: 2,
+  kink: 1,
+  kinky: 1,
+  kissass: 2,
+  kkk: 2,
+  klansman: 2,
+  klansmen: 2,
+  klanswoman: 2,
+  klanswomen: 2,
+  knife: 0,
+  knockers: 1,
+  kock: 1,
+  kondum: 2,
+  koon: 2,
+  kotex: 1,
+  krap: 2,
+  krappy: 2,
+  kraut: 1,
+  krauts: 2,
+  kuffar: 2,
+  kum: 2,
+  kumbubble: 2,
+  kumbullbe: 2,
+  kummer: 2,
+  kumming: 2,
+  kumquat: 2,
+  kums: 2,
+  kunilingus: 2,
+  kunnilingus: 2,
+  kunt: 2,
+  kushi: 2,
+  kushis: 2,
+  kwa: 2,
+  'kwai lo': 2,
+  'kwai los': 2,
+  ky: 1,
+  kyke: 2,
+  kykes: 2,
+  kyopo: 2,
+  kyopos: 2,
+  lactate: 1,
+  laid: 0,
+  lapdance: 1,
+  latin: 0,
+  lebo: 2,
+  lebos: 2,
+  lesbain: 2,
+  lesbayn: 2,
+  lesbian: 0,
+  lesbin: 2,
+  lesbo: 2,
+  lez: 2,
+  lezbe: 2,
+  lezbefriends: 2,
+  lezbo: 2,
+  lezz: 2,
+  lezzo: 2,
+  liberal: 0,
+  libido: 1,
+  licker: 1,
+  lickme: 2,
+  lies: 0,
+  limey: 2,
+  limpdick: 2,
+  limy: 2,
+  lingerie: 0,
+  liquor: 1,
+  livesex: 2,
+  loadedgun: 2,
+  lolita: 1,
+  looser: 2,
+  loser: 2,
+  lotion: 0,
+  lovebone: 2,
+  lovegoo: 2,
+  lovegun: 2,
+  lovejuice: 2,
+  lovemuscle: 2,
+  lovepistol: 2,
+  loverocket: 2,
+  lowlife: 2,
+  lsd: 1,
+  lubejob: 2,
+  lubra: 2,
+  lucifer: 0,
+  luckycammeltoe: 2,
+  lugan: 2,
+  lugans: 2,
+  lynch: 1,
+  mabuno: 2,
+  mabunos: 2,
+  macaca: 2,
+  macacas: 2,
+  mad: 0,
+  mafia: 1,
+  magicwand: 2,
+  mahbuno: 2,
+  mahbunos: 2,
+  mams: 2,
+  manhater: 2,
+  manpaste: 2,
+  marijuana: 1,
+  mastabate: 2,
+  mastabater: 2,
+  masterbate: 2,
+  masterblaster: 2,
+  mastrabator: 2,
+  masturbate: 2,
+  masturbating: 2,
+  mattressprincess: 2,
+  'mau mau': 2,
+  'mau maus': 2,
+  maumau: 2,
+  maumaus: 2,
+  meatbeatter: 2,
+  meatrack: 2,
+  meth: 1,
+  mexican: 0,
+  mgger: 2,
+  mggor: 2,
+  mick: 1,
+  mickeyfinn: 2,
+  mideast: 0,
+  milf: 2,
+  minority: 0,
+  mockey: 2,
+  mockie: 2,
+  mocky: 2,
+  mofo: 2,
+  moky: 2,
+  moles: 0,
+  molest: 1,
+  molestation: 1,
+  molester: 1,
+  molestor: 1,
+  moneyshot: 2,
+  'moon cricket': 2,
+  'moon crickets': 2,
+  mooncricket: 2,
+  mooncrickets: 2,
+  mormon: 0,
+  moron: 2,
+  moskal: 2,
+  moskals: 2,
+  moslem: 2,
+  mosshead: 2,
+  mothafuck: 2,
+  mothafucka: 2,
+  mothafuckaz: 2,
+  mothafucked: 2,
+  mothafucker: 2,
+  mothafuckin: 2,
+  mothafucking: 2,
+  mothafuckings: 2,
+  motherfuck: 2,
+  motherfucked: 2,
+  motherfucker: 2,
+  motherfuckin: 2,
+  motherfucking: 2,
+  motherfuckings: 2,
+  motherlovebone: 2,
+  muff: 2,
+  muffdive: 2,
+  muffdiver: 2,
+  muffindiver: 2,
+  mufflikcer: 2,
+  mulatto: 2,
+  muncher: 2,
+  munt: 2,
+  murder: 1,
+  murderer: 1,
+  muslim: 0,
+  mzungu: 2,
+  mzungus: 2,
+  naked: 0,
+  narcotic: 1,
+  nasty: 0,
+  nastybitch: 2,
+  nastyho: 2,
+  nastyslut: 2,
+  nastywhore: 2,
+  nazi: 1,
+  necro: 1,
+  negres: 2,
+  negress: 2,
+  negro: 2,
+  negroes: 2,
+  negroid: 2,
+  negros: 2,
+  nig: 2,
+  nigar: 2,
+  nigars: 2,
+  niger: 0,
+  nigerian: 1,
+  nigerians: 1,
+  nigers: 2,
+  nigette: 2,
+  nigettes: 2,
+  nigg: 2,
+  nigga: 2,
+  niggah: 2,
+  niggahs: 2,
+  niggar: 2,
+  niggaracci: 2,
+  niggard: 2,
+  niggarded: 2,
+  niggarding: 2,
+  niggardliness: 2,
+  niggardlinesss: 2,
+  niggardly: 0,
+  niggards: 2,
+  niggars: 2,
+  niggas: 2,
+  niggaz: 2,
+  nigger: 2,
+  niggerhead: 2,
+  niggerhole: 2,
+  niggers: 2,
+  niggle: 2,
+  niggled: 2,
+  niggles: 2,
+  niggling: 2,
+  nigglings: 2,
+  niggor: 2,
+  niggress: 2,
+  niggresses: 2,
+  nigguh: 2,
+  nigguhs: 2,
+  niggur: 2,
+  niggurs: 2,
+  niglet: 2,
+  nignog: 2,
+  nigor: 2,
+  nigors: 2,
+  nigr: 2,
+  nigra: 2,
+  nigras: 2,
+  nigre: 2,
+  nigres: 2,
+  nigress: 2,
+  nigs: 2,
+  nip: 2,
+  nipple: 1,
+  nipplering: 1,
+  nittit: 2,
+  nlgger: 2,
+  nlggor: 2,
+  nofuckingway: 2,
+  nook: 1,
+  nookey: 2,
+  nookie: 2,
+  noonan: 2,
+  nooner: 1,
+  nude: 1,
+  nudger: 2,
+  nuke: 1,
+  nutfucker: 2,
+  nymph: 1,
+  ontherag: 2,
+  oral: 1,
+  oreo: 0,
+  oreos: 0,
+  orga: 2,
+  orgasim: 2,
+  orgasm: 1,
+  orgies: 1,
+  orgy: 1,
+  osama: 0,
+  paddy: 1,
+  paederastic: 1,
+  paederasts: 1,
+  paederasty: 1,
+  paki: 2,
+  pakis: 2,
+  palesimian: 2,
+  palestinian: 0,
+  'pancake face': 2,
+  'pancake faces': 2,
+  pansies: 2,
+  pansy: 2,
+  panti: 2,
+  panties: 0,
+  payo: 2,
+  pearlnecklace: 1,
+  peck: 1,
+  pecker: 1,
+  peckerwood: 2,
+  pederastic: 1,
+  pederasts: 1,
+  pederasty: 1,
+  pedo: 2,
+  pedophile: 1,
+  pedophiles: 1,
+  pedophilia: 1,
+  pedophilic: 1,
+  pee: 1,
+  peehole: 2,
+  peepee: 2,
+  peepshow: 1,
+  peepshpw: 2,
+  pendy: 1,
+  penetration: 1,
+  peni5: 2,
+  penile: 1,
+  penis: 1,
+  penises: 1,
+  penthouse: 0,
+  period: 0,
+  perv: 2,
+  phonesex: 1,
+  phuk: 2,
+  phuked: 2,
+  phuking: 2,
+  phukked: 2,
+  phukking: 2,
+  phungky: 2,
+  phuq: 2,
+  pi55: 2,
+  picaninny: 2,
+  piccaninny: 2,
+  pickaninnies: 2,
+  pickaninny: 2,
+  piefke: 2,
+  piefkes: 2,
+  piker: 2,
+  pikey: 2,
+  piky: 2,
+  pimp: 2,
+  pimped: 2,
+  pimper: 2,
+  pimpjuic: 2,
+  pimpjuice: 2,
+  pimpsimp: 2,
+  pindick: 2,
+  piss: 2,
+  pissed: 2,
+  pisser: 2,
+  pisses: 2,
+  pisshead: 2,
+  pissin: 2,
+  pissing: 2,
+  pissoff: 2,
+  pistol: 1,
+  pixie: 1,
+  pixy: 1,
+  playboy: 1,
+  playgirl: 1,
+  pocha: 2,
+  pochas: 2,
+  pocho: 2,
+  pochos: 2,
+  pocketpool: 2,
+  pohm: 2,
+  pohms: 2,
+  polack: 2,
+  polacks: 2,
+  pollock: 2,
+  pollocks: 2,
+  pom: 2,
+  pommie: 2,
+  'pommie grant': 2,
+  'pommie grants': 2,
+  pommies: 2,
+  pommy: 2,
+  poms: 2,
+  poo: 2,
+  poon: 2,
+  poontang: 2,
+  poop: 2,
+  pooper: 2,
+  pooperscooper: 2,
+  pooping: 2,
+  poorwhitetrash: 2,
+  popimp: 2,
+  'porch monkey': 2,
+  'porch monkies': 2,
+  porchmonkey: 2,
+  porn: 1,
+  pornflick: 1,
+  pornking: 2,
+  porno: 1,
+  pornography: 1,
+  pornprincess: 2,
+  pot: 0,
+  poverty: 0,
+  'prairie nigger': 2,
+  'prairie niggers': 2,
+  premature: 0,
+  pric: 2,
+  prick: 2,
+  prickhead: 2,
+  primetime: 0,
+  propaganda: 0,
+  pros: 0,
+  prostitute: 1,
+  protestant: 1,
+  pu55i: 2,
+  pu55y: 2,
+  pube: 1,
+  pubic: 1,
+  pubiclice: 2,
+  pud: 2,
+  pudboy: 2,
+  pudd: 2,
+  puddboy: 2,
+  puke: 2,
+  puntang: 2,
+  purinapricness: 2,
+  puss: 2,
+  pussie: 2,
+  pussies: 2,
+  pussy: 1,
+  pussycat: 1,
+  pussyeater: 2,
+  pussyfucker: 2,
+  pussylicker: 2,
+  pussylips: 2,
+  pussylover: 2,
+  pussypounder: 2,
+  pusy: 2,
+  quashie: 2,
+  que: 0,
+  queef: 2,
+  queer: 1,
+  quickie: 2,
+  quim: 2,
+  ra8s: 2,
+  rabbi: 0,
+  racial: 0,
+  racist: 1,
+  radical: 1,
+  radicals: 1,
+  raghead: 2,
+  ragheads: 2,
+  randy: 1,
+  rape: 1,
+  raped: 1,
+  raper: 2,
+  rapist: 1,
+  rearend: 2,
+  rearentry: 2,
+  rectum: 1,
+  redleg: 2,
+  redlegs: 2,
+  redlight: 0,
+  redneck: 2,
+  rednecks: 2,
+  redskin: 2,
+  redskins: 2,
+  reefer: 2,
+  reestie: 2,
+  refugee: 0,
+  reject: 0,
+  remains: 0,
+  rentafuck: 2,
+  republican: 0,
+  rere: 2,
+  retard: 2,
+  retarded: 2,
+  ribbed: 1,
+  rigger: 2,
+  rimjob: 2,
+  rimming: 2,
+  roach: 0,
+  robber: 0,
+  'round eyes': 2,
+  roundeye: 2,
+  rump: 0,
+  russki: 2,
+  russkie: 2,
+  sadis: 2,
+  sadom: 2,
+  sambo: 2,
+  sambos: 2,
+  samckdaddy: 2,
+  'sand nigger': 2,
+  'sand niggers': 2,
+  sandm: 2,
+  sandnigger: 2,
+  satan: 1,
+  scag: 1,
+  scallywag: 2,
+  scat: 1,
+  schlong: 2,
+  schvartse: 2,
+  schvartsen: 2,
+  schwartze: 2,
+  schwartzen: 2,
+  screw: 1,
+  screwyou: 2,
+  scrotum: 1,
+  scum: 1,
+  semen: 1,
+  seppo: 2,
+  seppos: 2,
+  septic: 1,
+  septics: 1,
+  servant: 0,
+  sex: 1,
+  sexed: 2,
+  sexfarm: 2,
+  sexhound: 2,
+  sexhouse: 1,
+  sexing: 2,
+  sexkitten: 2,
+  sexpot: 2,
+  sexslave: 2,
+  sextogo: 2,
+  sextoy: 1,
+  sextoys: 1,
+  sexual: 1,
+  sexually: 1,
+  sexwhore: 2,
+  sexy: 1,
+  sexymoma: 2,
+  sexyslim: 2,
+  shag: 1,
+  shaggin: 2,
+  shagging: 2,
+  shat: 2,
+  shav: 2,
+  shawtypimp: 2,
+  sheeney: 2,
+  shhit: 2,
+  shiksa: 2,
+  shinola: 1,
+  shit: 1,
+  shitcan: 2,
+  shitdick: 2,
+  shite: 2,
+  shiteater: 2,
+  shited: 2,
+  shitface: 2,
+  shitfaced: 2,
+  shitfit: 2,
+  shitforbrains: 2,
+  shitfuck: 2,
+  shitfucker: 2,
+  shitfull: 2,
+  shithapens: 2,
+  shithappens: 2,
+  shithead: 2,
+  shithouse: 2,
+  shiting: 2,
+  shitlist: 2,
+  shitola: 2,
+  shitoutofluck: 2,
+  shits: 2,
+  shitstain: 2,
+  shitted: 2,
+  shitter: 2,
+  shitting: 2,
+  shitty: 2,
+  shoot: 0,
+  shooting: 0,
+  shortfuck: 2,
+  showtime: 0,
+  shylock: 2,
+  shylocks: 2,
+  sick: 0,
+  sissy: 2,
+  sixsixsix: 2,
+  sixtynine: 2,
+  sixtyniner: 2,
+  skank: 2,
+  skankbitch: 2,
+  skankfuck: 2,
+  skankwhore: 2,
+  skanky: 2,
+  skankybitch: 2,
+  skankywhore: 2,
+  skinflute: 2,
+  skum: 2,
+  skumbag: 2,
+  skwa: 2,
+  skwe: 2,
+  slant: 0,
+  slanteye: 2,
+  slanty: 2,
+  slapper: 2,
+  slaughter: 1,
+  slav: 0,
+  slave: 2,
+  slavedriver: 2,
+  sleezebag: 2,
+  sleezeball: 2,
+  slideitin: 2,
+  slime: 0,
+  slimeball: 2,
+  slimebucket: 2,
+  slope: 0,
+  slopehead: 2,
+  slopeheads: 2,
+  sloper: 2,
+  slopers: 2,
+  slopes: 0,
+  slopey: 2,
+  slopeys: 2,
+  slopies: 2,
+  slopy: 2,
+  slut: 2,
+  sluts: 2,
+  slutt: 2,
+  slutting: 2,
+  slutty: 2,
+  slutwear: 2,
+  slutwhore: 2,
+  smack: 1,
+  smackthemonkey: 2,
+  smut: 2,
+  snatch: 1,
+  snatchpatch: 2,
+  snigger: 0,
+  sniggered: 0,
+  sniggering: 0,
+  sniggers: 1,
+  sniper: 0,
+  snot: 0,
+  snowback: 2,
+  snownigger: 2,
+  sob: 0,
+  sodom: 1,
+  sodomise: 2,
+  sodomite: 1,
+  sodomize: 2,
+  sodomy: 2,
+  sonofabitch: 2,
+  sonofbitch: 2,
+  sooties: 2,
+  sooty: 2,
+  sos: 0,
+  soviet: 0,
+  spa: 0,
+  spade: 1,
+  spades: 1,
+  spaghettibender: 2,
+  spaghettinigger: 2,
+  spank: 1,
+  spankthemonkey: 2,
+  spearchucker: 2,
+  spearchuckers: 2,
+  sperm: 1,
+  spermacide: 2,
+  spermbag: 2,
+  spermhearder: 2,
+  spermherder: 2,
+  spic: 2,
+  spick: 2,
+  spicks: 2,
+  spics: 2,
+  spig: 2,
+  spigotty: 2,
+  spik: 2,
+  spit: 2,
+  spitter: 2,
+  splittail: 2,
+  spooge: 2,
+  spreadeagle: 2,
+  spunk: 2,
+  spunky: 2,
+  sqeh: 2,
+  squa: 2,
+  squarehead: 2,
+  squareheads: 2,
+  squaw: 2,
+  squinty: 2,
+  stagg: 1,
+  stiffy: 1,
+  strapon: 1,
+  stringer: 2,
+  stripclub: 2,
+  stroke: 0,
+  stroking: 1,
+  stuinties: 2,
+  stupid: 2,
+  stupidfuck: 2,
+  stupidfucker: 2,
+  suck: 1,
+  suckdick: 2,
+  sucker: 2,
+  suckme: 2,
+  suckmyass: 2,
+  suckmydick: 2,
+  suckmytit: 2,
+  suckoff: 2,
+  suicide: 1,
+  swallow: 1,
+  swallower: 2,
+  swalow: 2,
+  'swamp guinea': 2,
+  'swamp guineas': 2,
+  swastika: 1,
+  sweetness: 0,
+  syphilis: 1,
+  taboo: 0,
+  tacohead: 2,
+  tacoheads: 2,
+  taff: 2,
+  tampon: 0,
+  tang: 2,
+  tantra: 1,
+  'tar babies': 2,
+  'tar baby': 2,
+  tarbaby: 2,
+  tard: 2,
+  teat: 1,
+  terror: 0,
+  terrorist: 1,
+  teste: 2,
+  testicle: 1,
+  testicles: 1,
+  thicklip: 2,
+  thicklips: 2,
+  thirdeye: 2,
+  thirdleg: 2,
+  threesome: 1,
+  threeway: 2,
+  'timber nigger': 2,
+  'timber niggers': 2,
+  timbernigger: 2,
+  tinker: 2,
+  tinkers: 2,
+  tinkle: 1,
+  tit: 1,
+  titbitnipply: 2,
+  titfuck: 2,
+  titfucker: 2,
+  titfuckin: 2,
+  titjob: 2,
+  titlicker: 2,
+  titlover: 2,
+  tits: 1,
+  tittie: 2,
+  titties: 2,
+  titty: 2,
+  tnt: 1,
+  toilet: 0,
+  tongethruster: 2,
+  tongue: 0,
+  tonguethrust: 2,
+  tonguetramp: 2,
+  tortur: 2,
+  torture: 1,
+  tosser: 2,
+  'towel head': 2,
+  'towel heads': 2,
+  towelhead: 2,
+  trailertrash: 2,
+  tramp: 1,
+  trannie: 2,
+  tranny: 2,
+  transexual: 0,
+  transsexual: 0,
+  transvestite: 2,
+  trap: 1,
+  triplex: 2,
+  trisexual: 1,
+  trojan: 0,
+  trots: 1,
+  tuckahoe: 2,
+  tunneloflove: 2,
+  turd: 1,
+  turnon: 2,
+  twat: 2,
+  twink: 2,
+  twinkie: 2,
+  twobitwhore: 2,
+  uck: 2,
+  uk: 0,
+  ukrop: 2,
+  'uncle tom': 2,
+  unfuckable: 2,
+  upskirt: 2,
+  uptheass: 2,
+  upthebutt: 2,
+  urinary: 0,
+  urinate: 0,
+  urine: 0,
+  usama: 2,
+  uterus: 1,
+  vagina: 1,
+  vaginal: 1,
+  vatican: 0,
+  vibr: 2,
+  vibrater: 2,
+  vibrator: 1,
+  vietcong: 0,
+  violence: 0,
+  virgin: 0,
+  virginbreaker: 2,
+  vomit: 2,
+  vulva: 1,
+  wab: 2,
+  wank: 2,
+  wanker: 2,
+  wanking: 2,
+  waysted: 2,
+  weapon: 0,
+  weenie: 2,
+  weewee: 2,
+  welcher: 2,
+  welfare: 2,
+  wetb: 2,
+  wetback: 2,
+  wetbacks: 2,
+  wetspot: 2,
+  whacker: 2,
+  whash: 2,
+  whigger: 2,
+  whiggers: 2,
+  whiskey: 0,
+  whiskeydick: 2,
+  whiskydick: 2,
+  whit: 1,
+  'white trash': 2,
+  whitenigger: 2,
+  whites: 1,
+  whitetrash: 2,
+  whitey: 2,
+  whiteys: 2,
+  whities: 2,
+  whiz: 2,
+  whop: 2,
+  whore: 2,
+  whorefucker: 2,
+  whorehouse: 2,
+  wigga: 2,
+  wiggas: 2,
+  wigger: 2,
+  wiggers: 2,
+  willie: 2,
+  williewanker: 2,
+  willy: 1,
+  wn: 2,
+  wog: 2,
+  wogs: 2,
+  womens: 0,
+  wop: 2,
+  wtf: 2,
+  wuss: 2,
+  wuzzie: 2,
+  xkwe: 2,
+  xtc: 1,
+  xxx: 1,
+  yank: 2,
+  yankee: 1,
+  yankees: 1,
+  yanks: 2,
+  yarpie: 2,
+  yarpies: 2,
+  yellowman: 2,
+  yid: 2,
+  yids: 2,
+  zigabo: 2,
+  zigabos: 2,
+  zipperhead: 2,
+  zipperheads: 2
+}
+
 
 /***/ })
 

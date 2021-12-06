@@ -179,7 +179,12 @@ footer{
   width: 100%;
 }
 #contact{
-  background-color: slategray;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  background-color: rgb(54, 64, 73);
+  margin-left: 3%;
+  margin-right: 3%;
+
 }
 #contact h1, #contact h2, #contact h3{
   text-align: center;
@@ -190,6 +195,28 @@ footer{
   /* padding-top: 1rem; */
   padding-bottom: 1rem;
   color: blue;
+}
+#contactemail > a{
+  color: whitesmoke;
+}
+#contactsplit{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-left: 3%;
+  margin-right: 3%;
+}
+#contactsplit  > img{
+  border-radius: 60%;
+  width: 35%;
+  height: auto;
+  flex: 1;
+  object-fit: cover; 
+
+}
+#contactsplit > form{
+  flex:3;
 }
 #linkstome{
   display: flex;
@@ -248,10 +275,23 @@ footer{
 .form-row > button {
   padding: .5em;
 }
-.form-row > button {
+/* .form-row > button {
  background: gray;
- color: white;
+ color: greenyellow;
  border: 0;
+} */
+#submit{
+  color: green;  
+  text-align: center;
+}
+#subbutton{
+  display: flex;
+  /* align-items: flex-end; */
+  /* justify-content: center; */
+  width: 10rem;
+}
+#formmsg{
+  color: rgb(206, 240, 12);
 }
 #about{
   margin-left: 3%;
@@ -262,6 +302,7 @@ footer{
 #about > h2{
   text-align: center;
   padding-top: 2%;
+  font-size: 140%;
 }
 #about > div{
   display:flex;
@@ -298,11 +339,11 @@ footer{
   flex-wrap: wrap;
 }
 .proficiency > img{
-  width: 6rem;
-  height: 6rem;
+  width: 5rem;
+  height: 5rem;
   border: 1px solid #dee2e6;
   margin: 1vw;
-  background-color: white;
+  background-color: rgb(233, 229, 229);
 }
 /* #about h1{
   height: 4rem;
