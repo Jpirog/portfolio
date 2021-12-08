@@ -1,6 +1,7 @@
 import React from 'react';
 import Contact from './Contact';
 import Projects from './Projects';
+import Projects2 from './Projects2';
 import About from './About';
 import Nav from './Nav';
 import Footer from './Footer';
@@ -13,7 +14,6 @@ const HomeTop = () => {
         <p>Hello, I'm John Pirog</p>
         <p>&nbsp;&nbsp;&nbsp;Full Stack web developer<br />
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and software engineer</p>
-        <p>Let's collaborate...</p>
       </div>
     </section>
   )
@@ -33,7 +33,7 @@ const Home = () => {
       <HomeTop />
       <Nav />
       <About />
-      <Projects />
+      <Projects2 />
       <Contact />
       <Footer />
     </div>

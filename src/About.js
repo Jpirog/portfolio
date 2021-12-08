@@ -40,7 +40,7 @@ const About = props => {
         From mainframes to Unix to Windows to the web, I've programmed
         in languages like Python, SQL Windows, Microsoft products, and now 
         Javascript, React, and the latest web technologies. The most important thing when developing
-        is to ensure the produce meets what the business users need for the company to thrive. 
+        is to ensure the product meets what the business users need for the company to thrive. 
       </p>
     </section>
   )
