@@ -6,16 +6,16 @@ const Footer = () => {
     <footer>
       <div id="linkstome">
           <a href="https://www.linkedin.com/in/johnpirog" target="_blank" >
-            <img className="logo" src="/linkedin-logo.png" />
+            <img className="logo" src="/images/linkedin-logo.png" />
           </a>
           <a href="https://github.com/jpirog/" target="_blank" >
-            <img className="logo" src="/github-logo.png" />
+            <img className="logo" src="/images/github-logo.png" />
           </a>
           <a href="https://www.instagram.com/johnpirog262/" target="_blank" >
-            <img className="logo" src="/instagram-logo.svg" />
+            <img className="logo" src="/images/instagram-logo.svg" />
           </a>
           <a href="mailto:john.pirog@gmail.com?subject=Saw your website..." target="_blank" >
-            <img className="logo" src="/email-logo.svg" />
+            <img className="logo" src="/images/email-logo.svg" />
           </a>
       </div>
 \     <div id="copyr">

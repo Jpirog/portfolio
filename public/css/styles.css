@@ -40,6 +40,8 @@ body{
     height:auto;
     position: absolute;
     bottom: */
+    filter: grayscale(80%) brightness(80%);
+
 }
 #herotop{
   position : absolute;
@@ -165,13 +167,16 @@ left : 25%;
 footer{
   background-color: rgb(49, 47, 47);
   width: 100%;
+  /* margin-top: 0;
+  padding-top: 0; */
 }
 #contact{
-  padding-top: 2%;
-  padding-bottom: 2%;
+  padding-top: 4%;
+  padding-bottom: 6%;
+  padding-left: 7%;
   background-color: rgb(54, 64, 73);
-  margin-left: 3%;
-  margin-right: 3%;
+  margin-left: 0%;
+  margin-right: 0%;
 
 }
 #contact h1, #contact h2, #contact h3{
@@ -201,6 +206,8 @@ footer{
   height: auto;
   flex: 1;
   object-fit: cover; 
+  filter: brightness(120%);
+
 
 }
 #contactsplit > form{
@@ -209,9 +216,9 @@ footer{
 #linkstome{
   display: flex;
   height: 8rem;
-  margin-top: 2rem;
+  margin-top: 0rem;
   margin-left: 25%;
-  padding-top: 2rem;
+  padding-top: 0rem;
   width: 50%;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -223,7 +230,7 @@ footer{
 #copyr{
   text-align: center;
   color: whitesmoke;
-  padding-bottom: 3rem;
+  padding-bottom: 2rem;
 }
 .logo{
   height: 3rem;
@@ -273,10 +280,12 @@ footer{
   text-align: center;
 }
 #subbutton{
-  display: flex;
+  /* display: flex; */
   /* align-items: flex-end; */
   /* justify-content: center; */
-  width: 10rem;
+  /* width: 5rem; */
+  /* font-weight: 700;
+  font-size: 120%; */
 }
 #formmsg{
   color: rgb(206, 240, 12);

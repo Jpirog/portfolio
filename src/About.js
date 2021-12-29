@@ -6,28 +6,28 @@ const About = props => {
     <section id="about">
       <h2>About me: I'm John Pirog and I love writing code!</h2>
       <div>
-        <img id="aboutlive" src="liveforthecode.jpg" alt="John Pirog - full stack develper"/>
+        <img id="aboutlive" src="/images/liveforthecode.jpg" alt="John Pirog - full stack develper"/>
         <div className="proficiency">
-          <img src="apirest.png" alt="REST API"></img>
-          <img src="axios.png" alt="axios"></img>
-          <img src="babel.png" alt="Babel"></img>
-          <img src="css.png" alt="CSS"></img>
-          <img src="express.png" alt="Express"></img>
-          <img src="git.png" alt="Git"></img>
-          <img src="html.png" alt="HTML"></img>
-          <img src="javascript.png" alt="Javascript"></img>
-          <img src="json.png" alt="JSON"></img>
-          <img src="node.png" alt="Node"></img>
-          <img src="postgres.png" alt="Postgres"></img>
-          <img src="react.png" alt="ReactJS React"></img>
-          <img src="redux.png" alt="Redux"></img>
-          <img src="sequelize.png" alt="Sequelize"></img>
-          <img src="sql-server.png" alt="SQL"></img>
-          <img src="webpack.png" alt="Webpack"></img>
-          <img src="oracle.png" alt="Oracle"></img>
-          <img src="b2b.png" alt="Oracle"></img>
-          <img src="b2c.png" alt="Oracle"></img>
-          <img src="technology.png" alt="Oracle"></img>
+          <img src="/images/apirest.png" alt="REST API"></img>
+          <img src="/images/axios.png" alt="axios"></img>
+          <img src="/images/babel.png" alt="Babel"></img>
+          <img src="/images/css.png" alt="CSS"></img>
+          <img src="/images/express.png" alt="Express"></img>
+          <img src="/images/git.png" alt="Git"></img>
+          <img src="/images/html.png" alt="HTML"></img>
+          <img src="/images/javascript.png" alt="Javascript"></img>
+          <img src="/images/json.png" alt="JSON"></img>
+          <img src="/images/node.png" alt="Node"></img>
+          <img src="/images/postgres.png" alt="Postgres"></img>
+          <img src="/images/react.png" alt="ReactJS React"></img>
+          <img src="/images/redux.png" alt="Redux"></img>
+          <img src="/images/sequelize.png" alt="Sequelize"></img>
+          <img src="/images/sql-server.png" alt="SQL"></img>
+          <img src="/images/webpack.png" alt="Webpack"></img>
+          <img src="/images/oracle.png" alt="Oracle"></img>
+          <img src="/images/b2b.png" alt="Oracle"></img>
+          <img src="/images/b2c.png" alt="Oracle"></img>
+          <img src="/images/technology.png" alt="Oracle"></img>
           <ul>
             <li>ERP - Oracle eBusiness Suite</li>
             <li>eCommerce - B2B and B2C</li>
