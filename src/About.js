@@ -28,7 +28,7 @@ const About = props => {
           <img src="/images/b2b.png" alt="Oracle"></img>
           <img src="/images/b2c.png" alt="Oracle"></img>
           <img src="/images/technology.png" alt="Oracle"></img>
-          <ul>
+          <ul id="othertech">
             <li>ERP - Oracle eBusiness Suite</li>
             <li>eCommerce - B2B and B2C</li>
             <li>Solutions architecture</li>
@@ -36,6 +36,7 @@ const About = props => {
           </ul>
         </div>
       </div>
+      <hr />
       <p id="abouttext">Over the years, I've developed software in many languages and platforms. 
         From mainframes to Unix to Windows to the web, I've programmed
         in languages like Python, SQL Windows, Microsoft products, and now 

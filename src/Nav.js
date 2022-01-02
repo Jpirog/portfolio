@@ -5,7 +5,6 @@ const Nav = props => {
   return (
   <section id="nav">
     <ul id="navitems">
-      <li><Link to="/#projects">Home</Link></li>
       <li><a href="#herocontainer">Home</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#projects">Projects</a></li>

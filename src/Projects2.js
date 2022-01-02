@@ -54,7 +54,7 @@ const projectData = [
   { name: "CoPilot",
     color: 'gray',
     image: "copilot.jpg",
-    description: "Our senior phase capstone project was a site where a group of people can co-plan a trip. This will ease the planning when a group of friends or a families are going somewhere together. While I again focused on the database, numerous APIs, and Redux thunks, i also wrote some of the front-end components.",
+    description: "Our senior phase capstone project was a site where a group of people can co-plan a trip. This will ease the planning when groups of friends or families are going somewhere together. While I again focused on the database, numerous APIs, and Redux thunks, i also wrote some of the front-end components.",
     technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
     video: "https://www.youtube.com/embed/qcl9iqdCT8A",
     github: "https://github.com/Jpirog/CoPilot",
