@@ -21,6 +21,7 @@ body{
   object-fit: cover;
   filter: grayscale(80%) brightness(80%);
   margin-bottom: 0%;
+  display: block;
 }
 #herotop{
   position : absolute;
