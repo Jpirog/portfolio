@@ -9,55 +9,27 @@ body{
 #pagenotfound{
   width: 100%;
   height: auto;
-  /*padding: 0; */
 }
 #herocontainer{
   position: relative;
-  margin: 0 auto;
   overflow:hidden;
-   /* max-height: 70rem;  */
+  margin-bottom: 0%;
 }
 #homehero{
   width: 100%;
   height: 100vh; 
-  /* margin: -250px 0px -100px 00px; */
-  /* display: block; */
-  /* width: 100%;
-  width: 100%; */
-  /* max-width: 100%; */
-  /* max-height: 100%; */
-  /* height: auto; */
   object-fit: cover;
-  /* height: auto;  */
-  /*padding: 0; */
-/*   width: 100%;
-    max-width:100%;
-    height:auto;
-    position: absolute;
-    bottom: */
-    filter: grayscale(80%) brightness(80%);
-
+  filter: grayscale(80%) brightness(80%);
+  margin-bottom: 0%;
 }
 #herotop{
   position : absolute;
-top : 26%;
-/* bottom : 0; */
-left : 25%;
-/* right : 0; */
-/* margin: auto; */
-  /* position: absolute;
-  top: -1rem;
-  left: 4rem; */
+  top : 26%;
+  left : 25%;
   background-color: transparent;
-  /* padding-left: 10px;
-  padding-right: 10px; */
-  /* font-size: 2.5rem; */
   font-size: 4vw;
   color: white;
   font-style: italic;
-  /* margin-top: 0;
-  padding-top: 0;
-  width: 100%; */
 }
 #herobottom{
   position: absolute;
@@ -75,13 +47,9 @@ left : 25%;
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  /* background-color: yellow; */
-  /* padding: 50px;
-  font-size: 20px; */
-
 }
 #nav ul{
-  background-color: whitesmoke;
+  background-color: #BFA084;
   display: flex;
   list-style: none;
   justify-content: flex-end;
@@ -89,6 +57,9 @@ left : 25%;
   flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
+  margin-top: 0%;
+  margin-bottom: 0%;
+
 }
 #nav ul li{
   padding-left: 2rem;
@@ -103,8 +74,6 @@ left : 25%;
   bottom: 2rem;
   left: 4rem;
   background-color: transparent;
-  /* padding-left: 10px;
-  padding-right: 10px; */
   font-size: 2rem;
   color: black;
   font-style: italic;
@@ -120,60 +89,13 @@ left : 25%;
   justify-content: space-evenly;
 
 }
-/* .project{
-  height: 40rem;
-  width: 40%;
-  background-color: lightblue;
-  border: 1px solid black;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-} */
-/* .project img{
-  width: 90%;
-  margin-left: 5%;;
-  height: auto;
-} */
-/* .project img:hover{
-  width: 130%;
-  margin-left: -15%;
-}
-.project img:hover + .projdesc { 
-  display: none; 
-} */
-
-/* .project ul{
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  text-decoration: none;
-  margin-left: 5%;
-  width: 90%;
-  margin-right: 5%;
-  padding: 0;
-  list-style: none;
-} */
-/* .project ul li{
-  padding: 0;
-  margin: 0;
-}
-.project p:first-child{
-  text-align: center;
-  font-weight: bold;
-}
-.projdesc{
-  margin-left: 5%;
-  margin-right: 5%;
-  display: block;
-} */
 #video{
   cursor: pointer;
   text-decoration: underline;
 }
 footer{
-  background-color: rgb(49, 47, 47);
+  background-color: #0D0D0D;
   width: 100%;
-  /* margin-top: 0;
-  padding-top: 0; */
 }
 #contact{
   padding-top: 4%;
@@ -182,7 +104,6 @@ footer{
   background-color: rgb(54, 64, 73);
   margin-left: 0%;
   margin-right: 0%;
-
 }
 #contact h1, #contact h2, #contact h3{
   text-align: center;
@@ -190,7 +111,6 @@ footer{
 }
 #contacthead{
   text-align: center;
-  /* padding-top: 1rem; */
   padding-bottom: 1rem;
   color: blue;
 }
@@ -212,8 +132,6 @@ footer{
   flex: 1;
   object-fit: cover; 
   filter: brightness(120%);
-
-
 }
 #contactsplit > form{
   flex:3;
@@ -243,7 +161,6 @@ footer{
   background-color: transparent;
 }
 .form-wrapper {
-  /* background-color: whitesmoke; */
   list-style-type: none;
   padding: 0;
   border-radius: 3px;
@@ -263,50 +180,33 @@ footer{
   flex: 2;
   min-width: 0;
   border: 3px solid black;
-  /* width: 5rem; */
 }
 .form-row > textarea {
   flex: 2;
   min-width: 0;
   border: 3px solid black;
-  /* width: 5rem; */
 }
 .form-row > input,
 .form-row > button {
   padding: .5em;
 }
-/* .form-row > button {
- background: gray;
- color: greenyellow;
- border: 0;
-} */
 #submit{
   color: green;  
   text-align: center;
 }
 #subbutton{
-  /* display: flex; */
-  /* align-items: flex-end; */
-  /* justify-content: center; */
-  /* width: 5rem; */
-  /* font-weight: 700;
-  font-size: 120%; */
 }
 #formmsg{
   color: rgb(206, 240, 12);
 }
 #about{
   margin-left: 0%;
-  /* margin-bottom: 0%; */
-  /* width: 94%; */
   background-color: #242525;
   color: whitesmoke;
-  /* display:flex; */
-  /* flex-wrap: wrap; */
-  /* text-align: center; */
 }
 #about > h2{
   text-align: center;
+  margin-top: 0%;
   padding-top: 4%;
   padding-bottom: 3%;
   font-size: 160%;
@@ -315,13 +215,7 @@ footer{
 #about > div{
   display:flex;
   flex-direction: row;
-  /* flex-wrap: wrap; */
   justify-content: space-evenly;
-  /* justify-content: space-around; */
-  /* justify-content: space-between; */
-  /* justify-content: stretch; */
-  /* justify-content: center; */
-  /* justify-content: flex-start;  */
   flex: 0 1 auto; 
 }
 #aboutlive{
@@ -331,7 +225,6 @@ footer{
   padding-left: 2%;
   height: auto;
   object-fit: contain;
-
 }
 #abouttext{
   margin-left: 20%;
@@ -350,9 +243,6 @@ footer{
   font-weight: bold;
 }
 .proficiency{
-  /* display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; */
 }
 .proficiency > img{
   width: 4.5rem;
@@ -360,17 +250,10 @@ footer{
   border: 1px solid #dee2e6;
   margin: 1vw;
   background-color: rgb(233, 229, 229);
-  /* object-fit: contain; */
 }
 #othertech{
   list-style: none;
 }
-/* #about h1{
-  height: 4rem;
-  background-color: turquoise;
-  display:flex;
-  justify-content: center;
-} */
 .pagetitle{
   height: 6rem;
   background-color: darkblue;
@@ -380,10 +263,8 @@ footer{
   align-items: center;
   justify-content: center;
 }
-/* NEW PROJECT CSS */
 .project{
   background-color: aquamarine;
-  /* margin-top: 0%; */
 }
 .project h1{
   text-align: center;

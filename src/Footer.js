@@ -15,10 +15,10 @@ const Footer = () => {
             <img className="logo" src="/images/instagram-logo.svg" />
           </a>
           <a href="mailto:john.pirog@gmail.com?subject=Saw your website..." target="_blank" >
-            <img className="logo" src="/images/email-logo.svg" />
+            <img className="logo" src="/images/emaillogo.png" />
           </a>
       </div>
-\     <div id="copyr">
+     <div id="copyr">
         <span className="highlight">&copy;2021</span> - John Pirog - all rights reserved
       </div>
     </footer>
@@ -26,3 +26,4 @@ const Footer = () => {
 }
 
 export default Footer;
+// <img className="logo" src="/images/email-logo.svg" />

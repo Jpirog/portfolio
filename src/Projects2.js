@@ -12,8 +12,8 @@ const Project2 = ( {project} ) => {
         <div className="projectright">
           <h3>Major Technologies</h3>
           <div className="projectlogos">
-          { project.tech.map(c => 
-            <img className="projectlogo" src={c[0]} alt={c[1]}></img>          
+          { project.tech.map((c,i) => 
+            <img key={i} className="projectlogo" src={c[0]} alt={c[1]}></img>          
           )}
           </div>
         </div>            
@@ -29,7 +29,7 @@ const Project2 = ( {project} ) => {
 
 const projectData = [
   { name: "Grace Coffee",
-    color: 'lightblue',
+    color: '#A7D0D9',
     image: "gracecoffee1.jpg",
     description: "As part of Fullstack Academy's \"Grace Shopper\" senior phase eCommerce project, our team wrote a site to sell gourmet coffee. The team worked extremely well together. My areas of focus were the database, numerous APIs, Redux thunks, and some of the front-end components.",
     technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
@@ -52,7 +52,7 @@ const projectData = [
     ]
   },
   { name: "CoPilot",
-    color: 'gray',
+    color: '#F2E4C9',
     image: "copilot.jpg",
     description: "Our senior phase capstone project was a site where a group of people can co-plan a trip. This will ease the planning when groups of friends or families are going somewhere together. While I again focused on the database, numerous APIs, and Redux thunks, i also wrote some of the front-end components.",
     technologies: ["React", "Redux", "Router", "Node", "Express", "Postgres", "Sequelize"],
