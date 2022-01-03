@@ -26,4 +26,3 @@ const Footer = () => {
 }
 
 export default Footer;
-// <img className="logo" src="/images/email-logo.svg" />

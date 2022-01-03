@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import PageTitle from './PageTitle';
 import { cuss } from 'cuss';
 import axios from 'axios';
 
@@ -80,11 +79,6 @@ const Contact = () => {
       </div>
     </section>
   );
-
-
 }
 
 export default Contact;
-
-// <form onSubmit={handleSubmit(onSubmit)}>
-

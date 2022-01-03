@@ -73,7 +73,6 @@ const projectData = [
       ["/images/redux.png", "Redux"],
       ["/images/sequelize.png","Sequelize"],
     ]
-
   },
 ];
 

@@ -2,7 +2,6 @@ import React from 'react';
 
 const NotFound = () => {
   window.setTimeout(() => {
-    console.log('in settimeout');
     window.location.replace("/");
   }, 3000);
 

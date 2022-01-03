@@ -1,6 +1,5 @@
 import React from 'react';
 import Contact from './Contact';
-// import Projects from './Projects';
 import Projects2 from './Projects2';
 import About from './About';
 import Nav from './Nav';
@@ -16,14 +15,6 @@ const HomeTop = () => {
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and software engineer</p>
       </div>
     </section>
-  )
-}
-
-const HomeBottom = () => {
-  return (
-    <div className="container">
-    <p style={{"display":"none"}}>place holder for home - bottom if needed</p>
-    </div>
   )
 }
 
