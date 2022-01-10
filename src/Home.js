@@ -8,11 +8,11 @@ import Footer from './Footer';
 const HomeTop = () => {
   return (
     <section id="herocontainer">
-      <img id="homehero" src="/images/homeimg1.jpeg" alt="Background for John Pirog - full stack developer"/>
+      <img id="homehero" src="/images/home-background.jpeg" alt="Background for John Pirog - full stack developer"/>
       <div id="herotop">
-        <p>Hello, I'm John Pirog</p>
+        <h1>John Pirog</h1>
         <p>&nbsp;&nbsp;&nbsp;Full Stack web developer<br />
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and software engineer</p>
+        </p>
       </div>
     </section>
   )

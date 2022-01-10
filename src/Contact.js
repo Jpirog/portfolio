@@ -45,7 +45,7 @@ const Contact = () => {
       <h2 id="contacthead">Have a question or want to work together?</h2>
       <h3 id="contactemail">Contact me through <a href="mailto: john.pirog@gmail.com" target="_blank">email</a> or use the form below</h3>
       <div id="contactsplit">
-        <img src="/images/contactphoto.jpg" alt="John Pirog - full stack developer" />
+          <img src="/images/john-contact-me-pic.jpg" alt="John Pirog - full stack developer" />
         <form onSubmit={(ev) => onSubmit(ev)}>
           <ul className="form-wrapper">
             <li className="form-row">

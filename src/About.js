@@ -3,7 +3,12 @@ import React from 'react';
 const About = props => {
   return (
     <section id="about">
-      <h2>About me: I'm John Pirog and I love writing code!</h2>
+      <p id="abouttext">Over the years, I've developed software in many languages and platforms. 
+      From mainframes to Unix to Windows to the web, I've programmed
+      in languages like Python, SQL Windows, Microsoft products, and now 
+      Javascript, React, and the latest web technologies. The most important thing with software
+      is to ensure the product meets what the business users need for the company to thrive.
+      </p>
       <div>
         <img id="aboutlive" src="/images/liveforthecode.jpg" alt="John Pirog - full stack develper"/>
         <div className="proficiency">
@@ -35,13 +40,6 @@ const About = props => {
           </ul>
         </div>
       </div>
-      <hr />
-      <p id="abouttext">Over the years, I've developed software in many languages and platforms. 
-        From mainframes to Unix to Windows to the web, I've programmed
-        in languages like Python, SQL Windows, Microsoft products, and now 
-        Javascript, React, and the latest web technologies. The most important thing when developing
-        is to ensure the product meets what the business users need for the company to thrive. 
-      </p>
     </section>
   )
 }
