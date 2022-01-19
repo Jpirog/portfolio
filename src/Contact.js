@@ -45,23 +45,23 @@ const Contact = () => {
       <h2 id="contacthead">Have a question or want to work together?</h2>
       <h3 id="contactemail">Contact me through <a href="mailto: john.pirog@gmail.com" target="_blank">email</a> or use the form below</h3>
       <div id="contactsplit">
-          <img src="/images/john-contact-me-pic.jpg" alt="John Pirog - full stack developer" />
+        <div id="contfig">
+          <img id="contactimg" src="/images/john-contact-me-pic.jpg" alt="John Pirog - full stack developer" />
+          <figcaption>If I'm not coding or running, I'm golfing</figcaption>
+        </div>
         <form onSubmit={(ev) => onSubmit(ev)}>
           <ul className="form-wrapper">
             <li className="form-row">
-              <label htmlFor="name"></label>
-              <input {...register("name", { required: true, maxLength: 50 })} placeholder="Name" required size={10} maxLength={50}/>
+              <input {...register("name", { required: true, maxLength: 50 })} placeholder="Name" required size={50} maxLength={50}/>
               {errors.name && "Please enter your name"}
             </li>
 
             <li className="form-row">
-              <label htmlFor="email"></label>
-              <input {...register("email", { required: true, maxLength: 75 })} placeholder="Email" type="email" required  size={75} maxLength={75} />
+              <input {...register("email", { required: true, maxLength: 75 })} placeholder="Email" type="email" required  size={50} maxLength={75} />
               {errors.email && "Please enter your email address"}
             </li>
 
             <li className="form-row">
-              <label htmlFor="Message"></label>
               <textarea {...register("message", { required: true, maxLength: 500 })} placeholder="Message" required cols={50} rows={5}/>
               {errors.message && "Please enter a message"}
             </li>
@@ -71,7 +71,6 @@ const Contact = () => {
             </li>
 
             <li  className="form-row" id="subbutton">
-              <label htmlFor="xxxxx"></label>
               <input name="xxxxx" type="submit" id="submit"/>
             </li>
           </ul>

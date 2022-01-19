@@ -10,7 +10,10 @@ const About = props => {
       is to ensure the product meets what the business users need for the company to thrive.
       </p>
       <div>
-        <img id="aboutlive" src="/images/liveforthecode.jpg" alt="John Pirog - full stack develper"/>
+        <figure>
+          <img id="aboutlive" src="/images/liveforthecode.jpg" alt="John Pirog - full stack develper"/>
+          <figcaption>Oracle OpenWorld - Featured speaker for Oracle CPQ</figcaption>
+        </figure>
         <div className="proficiency">
           <img src="/images/apirest.png" alt="REST API"></img>
           <img src="/images/axios.png" alt="axios"></img>
@@ -45,3 +48,5 @@ const About = props => {
 }
 
 export default About;
+
+// <img id="aboutlive" src="/images/liveforthecode.jpg" alt="John Pirog - full stack develper"/>

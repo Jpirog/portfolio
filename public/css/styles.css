@@ -47,6 +47,7 @@ body{
   position: -webkit-sticky;
   position: sticky;
   top: 0;
+  z-index: 99999;
 }
 #nav ul{
   background-color: navy;
@@ -106,7 +107,7 @@ footer{
 #contact{
   padding-top: 4%;
   padding-bottom: 6%;
-  padding-left: 7%;
+  padding-left: 0%;
   background-color: rgb(54, 64, 73);
   margin-left: 0%;
   margin-right: 0%;
@@ -127,25 +128,59 @@ footer{
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
-  margin-left: 3%;
-  margin-right: 3%;
-  padding-left: 5%;
+  justify-content:center;
+  align-items: flex-start;
+  align-content: flex-start;
+  /* margin-left: 3%;
+  margin-right: 3%; */
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 0%;
 }
-#contactsplit > img{
+/* #contactsplit > * {
+  width: 50%;
+} */
+#contactsplit > div {
+  width: 20%;
+}
+#contactsplit > form {
+  /* width: 80%; */
+}
+
+/* #contfig{
+  background-color: green;
+  width:500%;
+} */
+/* #contactsplit > img{ */
+#contfig{
+  align-self:center;
+  /* width: 50%; */
+
+}
+#contfig > figcaption{
+  color: white;
+}  
+#contactimg{  
   border-radius: 10%;
   border: 3px solid black;
-  width: 35%;
+  width: 100%;
   height: auto;
-  flex: 1;
-  object-fit: cover; 
+  margin-left: 0%;
+  /* padding-top: 3%; */
+  margin-right: 3%;
+  /* padding-left: 2%; */
+
+  /* flex: 1; */
+  object-fit: contain; 
+  /* object-fit:fill; */
   filter: brightness(120%);
-  /* display: block; */
+  display: block;
   /* padding-left: 5%; */
 }
-#contactsplit > form{
+/* #contactsplit > form{
   flex:3;
-}
+} */
+
 #linkstome{
   display: flex;
   height: 8rem;
@@ -174,25 +209,26 @@ footer{
   list-style-type: none;
   padding: 0;
   border-radius: 3px;
+  padding-left: 10px;
 }
 .form-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   padding: .5em;
-  margin-right: 10rem;
+  /* margin-right: 10rem; */
 }
-.form-row > label {
+/* .form-row > label {
   padding: .5em 1em .5em 0;
   flex: 1;
   text-align: right;
-}
+} */
 .form-row > input {
-  flex: 2;
+  /* flex: 2; */
   min-width: 0;
   border: 3px solid black;
 }
 .form-row > textarea {
-  flex: 2;
+  /* flex: 2; */
   min-width: 0;
   border: 3px solid black;
 }
@@ -226,16 +262,23 @@ footer{
   display:flex;
   flex-direction: row;
   justify-content: space-evenly;
-  flex: 0 1 auto; 
+  /* flex: 0 1 auto;  */
+  /* align-items: center;
+  justify-content:flex-start */
+
 }
 #aboutlive{
-  width: 40%;
+  width: 100%;
   margin-left: 0%;
   margin-right: 3%;
   padding-left: 2%;
-  padding-bottom: 5%;
   height: auto;
   object-fit: contain;
+}
+figcaption{
+  font-size: 80%;
+  text-align: center;
+  padding-bottom: 5%;
 }
 #abouttext{
   margin-left: 15%;
